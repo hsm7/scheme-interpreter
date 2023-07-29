@@ -48,15 +48,8 @@ object Functions {
   def fold(f: BiFunc, identity: Expression): Expression => Expression = {
     case Empty => identity
     case Cons(car, cdr) => car match {
-      case Integer(n) => f(Value(n), fold(f, identity)(cdr))
-      case Number(n) => f(Value(n), fold(f, identity)(cdr))
-      case Func(_, args, g) => g(args) match {
-        case Integer(n) => f(Value(n), fold(f, identity)(cdr))
-        case Number(n) => f(Value(n), fold(f, identity)(cdr))
-        case _ => throw new EvaluateError(g(args) + " is not a number")
-      }
-      case _ => throw new EvaluateError(car + " is not a number")
+      case Func(_, args, g) => f(g(args), fold(f, identity)(cdr))
+      case _ => f(car, fold(f, identity)(cdr))
     }
-    case _ => throw new EvaluateError
   }
 }
