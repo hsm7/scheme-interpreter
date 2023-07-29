@@ -1,2 +1,2 @@
-# scheme-interpreter
+# Scheme Interpreter
 Simple Scheme interpreter.
