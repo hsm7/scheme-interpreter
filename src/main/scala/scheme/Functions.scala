@@ -36,20 +36,23 @@ object Functions {
   }
 
   /**
-   * Folds the curried expression using a binary operator, starting from an identity
-   * expression.
+   * Right folds the curried expression using a binary mapping function.
    * @param f binary function to apply.
-   * @param identity expression to start folding with.
-   * @return resulting expression obtained by folding elements of the curried expression
-   *         with `f` function, starting from `identity`. Or return an expression mapping
-   *         function (Expression => Expression) if invoked without curring.
-   * @throws EvaluateError exception if the applied expression is an invalid Scheme expression
+   * @return an expression obtained by right folding elements of the curried
+   *         expression with `f` function. Or return an expression mapping function
+   *         (Expression => Expression) if invoked without curring.
    */
-  def fold(f: BiFunc, identity: Expression): Expression => Expression = {
-    case Empty => identity
-    case Cons(car, cdr) => car match {
-      case Func(_, args, g) => f(g(args), fold(f, identity)(cdr))
-      case _ => f(car, fold(f, identity)(cdr))
+  def fold(f: BiFunc): Expression => Expression = exp => {
+    def _fold(f: BiFunc, identity: Expression): Expression => Expression = {
+      case Empty => identity
+      case Cons(car, cdr) => car match {
+        case Func(_, args, g) => f(identity, _fold(f, g(args))(cdr))
+        case _ => f(identity, _fold(f, car)(cdr))
+      }
+    }
+    exp match {
+      case Empty => Empty
+      case Cons(car, cdr) => _fold(f, car)(cdr)
     }
   }
 }

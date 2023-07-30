@@ -52,11 +52,12 @@ object Parser extends RegexParsers {
    */
   def func(s: Symbol ~ List[Expression]): Func = s._2.head match {
     case _ @ (Integer(_) | Number(_)) => s._1.symbol match {
-      case "+" => Func(s._1, list(s._2), Functions.fold(Functions.add, Value(0)))
-      case "-" => Func(s._1, list(s._2), Functions.fold(Functions.subtract, Value(0)))
-      case "*" => Func(s._1, list(s._2), Functions.fold(Functions.multiply, Value(1)))
-      case "/" => Func(s._1, list(s._2), Functions.fold(Functions.divide, Value(1)))
+      case "+" => Func(s._1, list(s._2), Functions.fold(Functions.add))
+      case "-" => Func(s._1, list(s._2), Functions.fold(Functions.subtract))
+      case "*" => Func(s._1, list(s._2), Functions.fold(Functions.multiply))
+      case "/" => Func(s._1, list(s._2), Functions.fold(Functions.divide))
     }
+    case _ @ (Cons(_, _) | Empty) => Func(s._1, list(s._2), _ => Empty)
     case _ => throw new UnsupportedOperationException
   }
 

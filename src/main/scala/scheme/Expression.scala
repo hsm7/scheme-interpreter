@@ -40,8 +40,8 @@ sealed trait Expression {
 
 // Represents an empty expression.
 case object Empty extends Expression {
-  override def print: String = ""
-  override def printAST: String = "()"
+  override def print: String = "()"
+  override def printAST: String = print
   override def evaluate: Expression = this
 }
 

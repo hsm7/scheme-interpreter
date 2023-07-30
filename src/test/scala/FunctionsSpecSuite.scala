@@ -10,25 +10,21 @@ class FunctionsSpecSuite extends AnyFunSpec{
     val exp3 = Cons(Number(7), Empty)
     val exp4 = Cons(Number(8), Cons(Number(7), Empty))
     val exp5 = Cons(Number(8), Cons(Integer(7), Empty))
-    val invalid = Cons(Symbol("^"), Cons(Str("Seven"), Empty))
 
     it("should evaluate empty expressions") {
-      assert(Functions.fold(Functions.add, Integer(0))(Empty).toString == "0")
+      assert(Functions.fold(Functions.add)(Empty).toString == "()")
     }
     it("should evaluate integer expressions") {
-      assert(Functions.fold(Functions.add, Integer(0))(exp1).toString == "7")
-      assert(Functions.fold(Functions.subtract, Integer(0))(exp2).toString == "1")
+      assert(Functions.fold(Functions.add)(exp1).toString == "7")
+      assert(Functions.fold(Functions.subtract)(exp2).toString == "1")
     }
     it("should evaluate number expressions") {
-      assert(Functions.fold(Functions.add, Number(0))(exp3).toString == "7.0")
-      assert(Functions.fold(Functions.subtract, Number(0))(exp4).toString == "1.0")
+      assert(Functions.fold(Functions.add)(exp3).toString == "7.0")
+      assert(Functions.fold(Functions.subtract)(exp4).toString == "1.0")
     }
     it("should evaluate mixed expressions") {
-      assert(Functions.fold(Functions.add, Number(0))(exp5).toString == "15.0")
-      assert(Functions.fold(Functions.subtract, Integer(0))(exp5).toString == "1.0")
-    }
-    it("should throw evaluation error exception") {
-      assertThrows[EvaluateError](Functions.fold(Functions.add, Number(0))(invalid))
+      assert(Functions.fold(Functions.add)(exp5).toString == "15.0")
+      assert(Functions.fold(Functions.subtract)(exp5).toString == "1.0")
     }
   }
 
