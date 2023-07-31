@@ -1,6 +1,5 @@
 import org.scalatest.funspec.AnyFunSpec
-import scheme.Interpreter.EvaluateError
-import scheme.{Cons, Empty, Functions, Integer, Number, Str, Symbol}
+import scheme.{Cons, Empty, Functions, Integer, Number}
 
 class FunctionsSpecSuite extends AnyFunSpec{
 

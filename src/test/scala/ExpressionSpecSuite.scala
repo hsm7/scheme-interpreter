@@ -1,5 +1,5 @@
 import org.scalatest.funspec.AnyFunSpec
-import scheme.{Empty, Expression, Value}
+import scheme.{Bool, Empty, Expression, Integer, Number, Str}
 
 class ExpressionSpecSuite extends AnyFunSpec {
 
@@ -9,10 +9,10 @@ class ExpressionSpecSuite extends AnyFunSpec {
 
 
     it("should evaluate simple expressions") {
-      assert(Expression.evaluate(Value(7)).toString == "7")
-      assert(Expression.evaluate(Value(7.7)).toString == "7.7")
-      assert(Expression.evaluate(Value(true)).toString == "#t")
-      assert(Expression.evaluate(Value("String")).toString == "String")
+      assert(Expression.evaluate(Integer(7)).toString == "7")
+      assert(Expression.evaluate(Number(7.7)).toString == "7.7")
+      assert(Expression.evaluate(Bool(true)).toString == "#t")
+      assert(Expression.evaluate(Str("String")).toString == "String")
     }
     it("should evaluate math expressions") {
       assert(Expression.evaluate(exp1).toString == "52")

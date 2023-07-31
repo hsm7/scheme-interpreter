@@ -2,8 +2,9 @@ package scheme
 
 import scheme.Interpreter.EvaluateError
 
-/* Scheme Expression API */
+/** Scheme Expression API */
 object Expression {
+
   /**
    * Parse Scheme expression from a string input.
    * @param program input to parse
@@ -16,9 +17,10 @@ object Expression {
    * @return evaluated Scheme expression for input Scheme `expression`
    */
   def evaluate(expression: Expression): Expression = expression.evaluate
+
 }
 
-/* ADT representing Scheme expressions abstract syntax tree */
+/* Expression ADT represents Scheme expressions abstract syntax tree */
 sealed trait Expression {
   // Datatype definition:
   //    Expression  = Empty | Value | Symbol | Func | Scheme
@@ -38,14 +40,15 @@ sealed trait Expression {
   override def toString: String = print
 }
 
-// Represents an empty expression.
+/** Represents the empty expression. */
 case object Empty extends Expression {
+  def apply(): Empty.type = Empty
   override def print: String = "()"
   override def printAST: String = print
   override def evaluate: Expression = this
 }
 
-// Represents a Scheme list expression.
+/** Represents a Scheme list expression. */
 case class Cons(car: Expression, cdr: Expression) extends Expression {
   override def print: String = cdr match {
     case Empty => "" + car
@@ -55,6 +58,9 @@ case class Cons(car: Expression, cdr: Expression) extends Expression {
   override def toString: String = "(" + print + ")"
   override def printAST: String = "List(" + car.printAST + ", " + cdr.printAST + ")"
   override def evaluate: Expression = Cons(car.evaluate, cdr.evaluate)
+}
+object Cons {
+  def apply(car: Expression, cdr: Expression): Cons = new Cons(car, cdr)
 }
 
 /**
@@ -69,6 +75,9 @@ case class Func(op: Symbol, args: Expression, f: Expression => Expression) exten
   override def printAST: String = "Func(" + op.printAST + ", " + args.printAST + ")"
   override def evaluate: Expression = f(args)
 }
+object Func {
+  def apply(symbol: Symbol, args: Expression, f: Expression => Expression): Func = new Func(symbol, args, f)
+}
 
 /**
  * Represents a Scheme symbol expression.
@@ -79,19 +88,15 @@ case class Symbol(symbol: String) extends Expression {
   override def printAST: String = "Symbol(" + symbol + ")"
   override def evaluate: Expression = this
 }
+object Symbol {
+  def apply(symbol: String): Symbol = new Symbol(symbol)
+}
 
 /**
  * Scheme primitive values are represented as an abstract class and multiple case classes
  */
 sealed abstract class Value extends Expression {
   override def evaluate: Expression = this
-}
-
-object Value {
-  def apply(n: Double): Number = Number(n)
-  def apply(n: Int): Integer = Integer(n)
-  def apply(n: Boolean): Bool = Bool(n)
-  def apply(s: String): Str = Str(s)
 }
 
 /**
@@ -102,6 +107,9 @@ case class Str(value: String) extends Value {
   override def print: String = value
   override def printAST: String = "Str(" + value + ")"
 }
+object Str {
+  def apply(s: String): Str = new Str(s)
+}
 
 /**
  * Represents a Scheme integer expression
@@ -109,27 +117,31 @@ case class Str(value: String) extends Value {
  */
 case class Integer(value: Int) extends Value {
   def + (expr: Expression) : Expression = expr match {
-    case Integer(b) => Value(value + b)
-    case Number(b) => Value(value + b)
+    case Integer(b) => Integer(value + b)
+    case Number(b) => Number(value + b)
     case _ => throw new EvaluateError(expr + " is not a number")
   }
   def - (expr: Expression) : Expression = expr match {
-    case Integer(b) => Value(value - b)
-    case Number(b) => Value(value - b)
+    case Integer(b) => Integer(value - b)
+    case Number(b) => Number(value - b)
     case _ => throw new EvaluateError(expr + " is not a number")
   }
   def * (expr: Expression) : Expression = expr match {
-    case Integer(b) => Value(value * b)
-    case Number(b) => Value(value * b)
+    case Integer(b) => Integer(value * b)
+    case Number(b) => Number(value * b)
     case _ => throw new EvaluateError(expr + " is not a number")
   }
   def / (expr: Expression) : Expression = expr match {
-    case Integer(b) => Value(value / b)
-    case Number(b) => Value(value / b)
+    case Integer(b) => Integer(value / b)
+    case Number(b) => Number(value / b)
     case _ => throw new EvaluateError(expr + " is not a number")
   }
   override def print: String = value.toString
   override def printAST: String = "Int(" + value + ")"
+}
+object Integer {
+  def apply(n: Int): Integer = new Integer(n)
+  def from(s: String): Integer = Integer(s.toInt)
 }
 
 /**
@@ -138,27 +150,31 @@ case class Integer(value: Int) extends Value {
  */
 case class Number(value: Double) extends Value {
   def + (expr: Expression) : Expression = expr match {
-    case Integer(b) => Value(value + b)
-    case Number(b) => Value(value + b)
+    case Integer(b) => Number(value + b)
+    case Number(b) => Number(value + b)
     case _ => throw new EvaluateError(expr + " is not a number")
   }
   def - (expr: Expression) : Expression = expr match {
-    case Integer(b) => Value(value - b)
-    case Number(b) => Value(value - b)
+    case Integer(b) => Number(value - b)
+    case Number(b) => Number(value - b)
     case _ => throw new EvaluateError(expr + " is not a number")
   }
   def * (expr: Expression) : Expression = expr match {
-    case Integer(b) => Value(value * b)
-    case Number(b) => Value(value * b)
+    case Integer(b) => Number(value * b)
+    case Number(b) => Number(value * b)
     case _ => throw new EvaluateError(expr + " is not a number")
   }
   def / (expr: Expression) : Expression = expr match {
-    case Integer(b) => Value(value / b)
-    case Number(b) => Value(value / b)
+    case Integer(b) => Number(value / b)
+    case Number(b) => Number(value / b)
     case _ => throw new EvaluateError(expr + " is not a number")
   }
   override def print: String = value.toString
   override def printAST: String = "Num(" + value + ")"
+}
+object Number {
+  def apply(n: Double): Number = new Number(n)
+  def from(s: String): Number = Number(s.toDouble)
 }
 
 /**
@@ -168,4 +184,7 @@ case class Number(value: Double) extends Value {
 case class Bool(value: Boolean) extends Value {
   override def print: String = if (value) "#t" else "#f"
   override def printAST: String = "Bool(" + value + ")"
+}
+object Bool {
+  def apply(n: Boolean): Bool = new Bool(n)
 }
