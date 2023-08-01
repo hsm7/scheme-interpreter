@@ -54,14 +54,14 @@ object Parser extends RegexParsers {
    * @param s pair of a Scheme Symbol and a list of Scheme Expressions
    * @return Function expression AST for input Scheme Symbol and expressions
    */
-  def func(s: Symbol ~ List[Expression]): Expression = s._2.head match {
-    case _ @(Integer(_) | Number(_)) => s._1.symbol match {
-      case "+" => Func(s._1, list(s._2), Functions.fold(Functions.add))
-      case "-" => Func(s._1, list(s._2), Functions.fold(Functions.subtract))
-      case "*" => Func(s._1, list(s._2), Functions.fold(Functions.multiply))
-      case "/" => Func(s._1, list(s._2), Functions.fold(Functions.divide))
-    }
-    case _ @(Cons(_, _) | Empty) => Func(s._1, list(s._2), _ => Empty()) // TODO: implement list functions
+  def func(s: Symbol ~ List[Expression]): Expression = s._1.symbol match {
+    case "+"    => Func(s._1, list(s._2), Functions.fold(Functions.add))
+    case "-"    => Func(s._1, list(s._2), Functions.fold(Functions.subtract))
+    case "*"    => Func(s._1, list(s._2), Functions.fold(Functions.multiply))
+    case "/"    => Func(s._1, list(s._2), Functions.fold(Functions.divide))
+    case "car"  => Func(s._1, list(s._2), Functions.car)
+    case "cdr"  => Func(s._1, list(s._2), Functions.cdr)
+    case "cons" => Func(s._1, list(s._2), Functions.cons)
     case _ => throw new UnsupportedOperationException
   }
 
@@ -78,7 +78,7 @@ object Parser extends RegexParsers {
     }
 
   def main(args: Array[String]): Unit = {
-    val program = "(1.2 (* 3.3 (+ 9 0 8)) 9)"
+    val program = "(car (7))"
     parse(expr, program) match {
       case Success(matched,_) => println(matched.printAST)
       case Failure(msg,_) => println("FAILURE: " + msg)

@@ -42,4 +42,19 @@ class FunctionsSpecSuite extends AnyFunSpec{
     }
   }
 
+  describe("list functions") {
+    it("should retrieve first element") {
+      assert(Functions.car(Cons(Cons(Integer(7), Empty), Empty)).toString == "7")
+    }
+    it("should retrieve an empty list") {
+      assert(Functions.car(Cons(Empty, Empty)).toString == "()")
+    }
+    it("should retrieve cdr elements") {
+      assert(Functions.cdr(Cons(Cons(Integer(7), Cons(Integer(8), Empty)), Empty)).toString == "(8)")
+    }
+    it("should add new element") {
+      assert(Functions.cons(Cons(Integer(5), Cons(Cons(Integer(7), Cons(Integer(8), Empty)), Empty))).toString == "(5 7 8)")
+    }
+  }
+
   }

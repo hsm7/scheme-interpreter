@@ -7,6 +7,36 @@ object Functions {
   // Binary mapping function of Scheme expressions
   type BiFunc = (Expression, Expression) => Expression
 
+  /* Retrieve car element of a Scheme list */
+  def car: Expression => Expression = {
+    case Cons(car, _) => car match {
+      case Empty => Empty()
+      case Cons(car, _) => car
+    }
+    case exp => throw new EvaluateError(exp + " is not a list")
+  }
+
+  /* Retrieve cdr elements of a Scheme list */
+  def cdr: Expression => Expression = {
+    case Cons(car, _) => car match {
+      case Empty => Empty()
+      case Cons(_, cdr) => cdr
+    }
+    case exp => throw new EvaluateError(exp + " is not a list")
+  }
+
+  /* Add new element to a Scheme list */
+  def cons: Expression => Expression = {
+    case Cons(car, cdr) => cdr match {
+      case Empty => Cons(car, Empty())
+      case Cons(head, _) => head match {
+        case Empty => Cons(car, Empty())
+        case Cons(h, t) => Cons(car, Cons(h, t))
+      }
+    }
+    case exp => throw new EvaluateError(exp + " is not a list")
+  }
+
   /* Addition of Scheme integer and number expression */
   def add: BiFunc = (n, m) => n match {
     case Integer(a) => Integer(a) + m

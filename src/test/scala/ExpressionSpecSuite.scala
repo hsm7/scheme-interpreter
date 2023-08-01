@@ -1,12 +1,28 @@
 import org.scalatest.funspec.AnyFunSpec
-import scheme.{Bool, Empty, Expression, Integer, Number, Str}
+import scheme.{Bool, Empty, Expression, Integer, Number, Str, Cons}
 
 class ExpressionSpecSuite extends AnyFunSpec {
 
   describe("Expression.evaluate") {
     val exp1 = Expression.parse("(* 4 (- 5 -8))")
     val exp2 = Expression.parse("(+ 1 6.1 (+ 5.4 1.5) (+ 2 3))")
+    val exp3 = Expression.parse("(car (7 8 9))")
+    val exp4 = Expression.parse("(car ())")
+    val exp5 = Expression.parse("(cdr (7 8 9))")
+    val exp6 = Expression.parse("(cons 6 (7 8 9))")
 
+    it("should evaluate car expressions") {
+      assert(Expression.evaluate(exp3).toString == "7")
+      assert(Expression.evaluate(exp4).toString == "()")
+    }
+
+    it("should evaluate cdr expressions") {
+      assert(Expression.evaluate(exp5).toString == "(8 9)")
+    }
+
+    it("should evaluate cons expressions") {
+      assert(Expression.evaluate(exp6).toString == "(6 7 8 9)")
+    }
 
     it("should evaluate simple expressions") {
       assert(Expression.evaluate(Integer(7)).toString == "7")
