@@ -88,6 +88,7 @@ class ExpressionSpecSuite extends AnyFunSpec {
       it("should parse list functions") {
         assert(Expression.parse("(car (4 5))").toString == "(car (4 5))")
         assert(Expression.parse("(cdr (10.0 5))").toString == "(cdr (10.0 5))")
+        assert(Expression.parse("(cons 8 (10.0 5))").toString == "(cons 8 (10.0 5))")
       }
     }
   }

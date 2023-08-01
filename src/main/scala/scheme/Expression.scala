@@ -73,7 +73,7 @@ case class Func(op: Symbol, args: Expression, f: Expression => Expression) exten
   override def print: String = op + " " + args.print
   override def toString: String = "(" + print + ")"
   override def printAST: String = "Func(" + op.printAST + ", " + args.printAST + ")"
-  override def evaluate: Expression = f(args)
+  override def evaluate: Expression = f(args.evaluate)
 }
 object Func {
   def apply(symbol: Symbol, args: Expression, f: Expression => Expression): Func = new Func(symbol, args, f)
