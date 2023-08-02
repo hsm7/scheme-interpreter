@@ -7,7 +7,17 @@ object Functions {
   // Binary mapping function of Scheme expressions
   type BiFunc = (Expression, Expression) => Expression
 
-  /* Retrieve car element of a Scheme list */
+  /** Map a Scheme symbol to an expression in the global environment */
+  def define: Expression => Expression = {
+    case Empty => Empty()
+    case Cons(car, cdr) => car match {
+      case Symbol(s) => cdr match {
+        case Cons(h, _) => Interpreter.Environment.put(Symbol(s), h)
+      }
+    }
+  }
+
+  /* Retrieve car element from a Scheme list */
   def car: Expression => Expression = {
     case Cons(car, _) => car match {
       case Empty => Empty()
@@ -16,7 +26,7 @@ object Functions {
     case exp => throw new EvaluateError(exp + " is not a list")
   }
 
-  /* Retrieve cdr elements of a Scheme list */
+  /* Retrieve cdr elements from a Scheme list */
   def cdr: Expression => Expression = {
     case Cons(car, _) => car match {
       case Empty => Empty()

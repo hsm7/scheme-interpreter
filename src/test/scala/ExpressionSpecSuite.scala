@@ -1,5 +1,5 @@
 import org.scalatest.funspec.AnyFunSpec
-import scheme.{Bool, Empty, Expression, Integer, Number, Str, Cons}
+import scheme.{Bool, Empty, Expression, Integer, Number, Str, Cons, Symbol}
 
 class ExpressionSpecSuite extends AnyFunSpec {
 
@@ -10,6 +10,16 @@ class ExpressionSpecSuite extends AnyFunSpec {
     val exp4 = Expression.parse("(car ())")
     val exp5 = Expression.parse("(cdr (7 8 9))")
     val exp6 = Expression.parse("(cons 6 (7 8 9))")
+    val exp7 = Expression.parse("(define x 5)")
+    val exp8 = Expression.parse("(define y (1 2 3 4))")
+
+
+    it("should evaluate define expressions") {
+      assert(Expression.evaluate(exp7).toString == "()")
+      assert(Expression.evaluate(Symbol("x")).toString == "5")
+      assert(Expression.evaluate(exp8).toString == "()")
+      assert(Expression.evaluate(Symbol("y")).toString == "(1 2 3 4)")
+    }
 
     it("should evaluate car expressions") {
       assert(Expression.evaluate(exp3).toString == "7")
@@ -89,6 +99,10 @@ class ExpressionSpecSuite extends AnyFunSpec {
         assert(Expression.parse("(car (4 5))").toString == "(car (4 5))")
         assert(Expression.parse("(cdr (10.0 5))").toString == "(cdr (10.0 5))")
         assert(Expression.parse("(cons 8 (10.0 5))").toString == "(cons 8 (10.0 5))")
+      }
+      it("should parse define expressions") {
+        assert(Expression.parse("(define x 5)").toString == "(define x 5)")
+        assert(Expression.parse("(define x (1 2 3 4))").toString == "(define x (1 2 3 4))")
       }
     }
   }

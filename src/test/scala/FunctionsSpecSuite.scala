@@ -1,5 +1,5 @@
 import org.scalatest.funspec.AnyFunSpec
-import scheme.{Cons, Empty, Functions, Integer, Number}
+import scheme.{Cons, Empty, Expression, Functions, Integer, Interpreter, Number, Symbol, Func}
 
 class FunctionsSpecSuite extends AnyFunSpec{
 
@@ -57,4 +57,28 @@ class FunctionsSpecSuite extends AnyFunSpec{
     }
   }
 
+  describe("define function") {
+    it("should map symbol to number expression in global environment") {
+      val s: Symbol = Symbol("x")
+      val e: Expression = Cons(Number(7), Empty)
+      val expr: Expression = Cons(s, e)
+      assert(Functions.define(expr) == Empty())
+      assert(Interpreter.Environment.get(s).toString == "7.0")
+    }
+    it("should map symbol to list expression in global environment") {
+      val s: Symbol = Symbol("x")
+      val e: Expression = Cons(Cons(Integer(7), Cons(Integer(8), Empty)), Empty)
+      val expr: Expression = Cons(s, e)
+      assert(Functions.define(expr) == Empty())
+      assert(Interpreter.Environment.get(s).toString == "(7 8)")
+    }
+    it("should map symbol to function expression in global environment") {
+      val s: Symbol = Symbol("+")
+      val e: Expression = Cons(Func(s, Cons(Symbol("x"), Cons(Symbol("y"), Empty))), Empty)
+      val expr: Expression = Cons(s, e)
+      assert(Functions.define(expr) == Empty())
+      assert(Interpreter.Environment.get(s).toString == "(+ x y)")
+    }
   }
+
+}
