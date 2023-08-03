@@ -35,7 +35,8 @@ sealed trait Expression {
   def evaluate: Expression = this
   /* Parse Scheme function expression from this expression. */
   def preprocess: Expression = this
-  /* Simplify this Scheme expression. */
+  /* Simplify this Scheme expression. Removes Empty expressions after evaluating
+   * define expressions */
   def simplify: Expression = this
   /* String representation of abstract syntax tree for this Scheme expression. */
   def printAST: String
