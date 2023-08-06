@@ -7,6 +7,20 @@ object Functions {
   // Binary mapping function of Scheme expressions
   type BiFunc = (Expression, Expression) => Expression
 
+  /** Scheme if expression */
+  def _if: Expression => Expression = {
+    case Cons(car, cdr) => car match {
+      case Bool(s) if s => cdr match {
+        case Cons(h, _) => h
+      }
+      case Bool(s) if !s => cdr match {
+        case Cons(_, t) => t match {
+          case Cons(h, _) => h
+        }
+      }
+    }
+  }
+
   /** Map a Scheme symbol to an expression in the global environment */
   def define: Expression => Expression = {
     case Empty => Empty()

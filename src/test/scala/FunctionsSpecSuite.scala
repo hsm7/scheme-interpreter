@@ -1,5 +1,5 @@
 import org.scalatest.funspec.AnyFunSpec
-import scheme.{Cons, Empty, Expression, Functions, Integer, Interpreter, Number, Symbol, Func}
+import scheme.{Bool, Cons, Empty, Expression, Func, Functions, Integer, Interpreter, Number, Symbol}
 
 class FunctionsSpecSuite extends AnyFunSpec{
 
@@ -78,6 +78,24 @@ class FunctionsSpecSuite extends AnyFunSpec{
       val expr: Expression = Cons(s, e)
       assert(Functions.define(expr) == Empty())
       assert(Interpreter.Environment.get(s).toString == "(+ x y)")
+    }
+  }
+
+  describe("_if function") {
+    it("should accept true if expressions") {
+      val add: Expression = Func(Symbol("+"), Cons(Number(8), Cons(Number(10), Empty)))
+      val mult: Expression = Func(Symbol("*"), Cons(Number(8), Cons(Number(10), Empty)))
+      val _if: Expression = Bool(true)
+      val expr: Expression = Cons(_if, Cons(add, Cons(mult, Empty)))
+      assert(Functions._if(expr).toString == "(+ 8.0 10.0)")
+    }
+
+    it("should accept false if expressions") {
+      val add: Expression = Func(Symbol("+"), Cons(Number(8), Cons(Number(10), Empty)))
+      val mult: Expression = Func(Symbol("*"), Cons(Number(8), Cons(Number(10), Empty)))
+      val _if: Expression = Bool(false)
+      val expr: Expression = Cons(_if, Cons(add, Cons(mult, Empty)))
+      assert(Functions._if(expr).toString == "(* 8.0 10.0)")
     }
   }
 

@@ -12,7 +12,13 @@ class ExpressionSpecSuite extends AnyFunSpec {
     val exp6 = Expression.parse("(cons 6 (7 8 9))")
     val exp7 = Expression.parse("(define x 5)")
     val exp8 = Expression.parse("(define y (1 2 3 4))")
+    val exp9 = Expression.parse("(if #t (+ 10 6) (- 10 6))")
+    val exp10 = Expression.parse("(if #f (+ 10 6) (- 10 6))")
 
+    it("should evaluate if expressions") {
+      assert(Expression.evaluate(exp9).toString == "16")
+      assert(Expression.evaluate(exp10).toString == "4")
+    }
 
     it("should evaluate define expressions") {
       assert(Expression.evaluate(exp7).toString == "()")

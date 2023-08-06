@@ -1,4 +1,6 @@
 # Scheme Interpreter
+![CI Build](https://github.com/hsm7/scheme-interpreter/actions/workflows/sbt.yml/badge.svg)
+
 A simple Scheme interpreter written in Scala. Inspired by Peter Norvig's [(How to Write a (Lisp) Interpreter (in Python))](https://norvig.com/lispy.html)
 
 Uses RegexParsers from [scala-parser-combinators](https://github.com/scala/scala-parser-combinators) to parse Scheme expressions
