@@ -65,6 +65,7 @@ object Functions {
   def add: BiFunc = (n, m) => n match {
     case Integer(a) => Integer(a) + m
     case Number(a)  => Number(a) + m
+    case Func(_, _, _) => add(n.evaluate, m)
     case _ => throw new EvaluateError(n + " is not a number")
   }
 
@@ -72,6 +73,7 @@ object Functions {
   def subtract: BiFunc = (n, m) => n match {
     case Integer(a) => Integer(a) - m
     case Number(a)  => Number(a) - m
+    case Func(_, _, _) => subtract(n.evaluate, m)
     case _ => throw new EvaluateError(n + " is not a number")
   }
 
@@ -79,6 +81,7 @@ object Functions {
   def multiply: BiFunc = (n, m) => n match {
     case Integer(a) => Integer(a) * m
     case Number(a)  => Number(a) * m
+    case Func(_, _, _) => multiply(n.evaluate, m)
     case _ => throw new EvaluateError(n + " is not a number")
   }
 
@@ -86,6 +89,7 @@ object Functions {
   def divide: BiFunc = (n, m) => n match {
     case Integer(a) => Integer(a) / m
     case Number(a)  => Number(a) / m
+    case Func(_, _, _) => divide(n.evaluate, m)
     case _ => throw new EvaluateError(n + " is not a number")
   }
 

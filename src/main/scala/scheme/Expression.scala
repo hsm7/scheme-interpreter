@@ -83,7 +83,7 @@ object Cons {
 object Lambda {
   def apply(expr: Expression): Expression = expr match {
     case Cons(car, cdr) => cdr match {
-      case Cons(h, t) => Func(Symbol("_"), car, _ => h.preprocess.evaluate)
+      case Cons(h, _) => Func(Symbol("^"), car, _ => h.evaluate)
     }
   }
 }
@@ -111,8 +111,14 @@ object Func {
     case Symbol("car")    => Func(s, args, Functions.car)
     case Symbol("cdr")    => Func(s, args, Functions.cdr)
     case Symbol("cons")   => Func(s, args, Functions.cons)
-    case Symbol("square") => Cons(Interpreter.Environment.get(Symbol("square")), args)
     case Symbol("lambda") => Lambda(args)
+    case Symbol(_) if Interpreter.Environment.contains(s) =>
+      val proc: Expression = Interpreter.Environment.get(s)
+      proc match {
+        case Func(_, params, _) =>
+          Interpreter.Environment.update(params, args)
+          proc
+      }
     case _                => Cons(s, args)
   }
 }

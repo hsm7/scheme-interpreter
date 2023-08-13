@@ -25,10 +25,10 @@ sealed trait Expression {
 - [x] List functions
 - [x] Global environment
 - [x] Definition expressions
-- [ ] Conditional expressions
-- [ ] Procedure call expressions
+- [x] Conditional expressions
+- [x] Procedure call expressions
 - [ ] Interpreter REPL
 - [ ] Quotation expressions
 - [ ] Assignment expressions
-- [ ] Lambda expressions
+- [x] Lambda expressions
 - [ ] Local environments and lexical scoping
