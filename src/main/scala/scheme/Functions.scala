@@ -9,7 +9,7 @@ object Functions {
 
   /** Scheme if expression */
   def _if: Expression => Expression = {
-    case Cons(car, cdr) => car match {
+    case Cons(car, cdr) => car.evaluate match {
       case Bool(s) if s => cdr match {
         case Cons(h, _) => h
       }
@@ -26,7 +26,7 @@ object Functions {
     case Empty => Empty()
     case Cons(car, cdr) => car match {
       case Symbol(s) => cdr match {
-        case Cons(h, _) => Interpreter.Environment.put(Symbol(s), h)
+        case Cons(h, _) => Interpreter.Environment.put(Symbol(s), h.preprocess)
       }
     }
   }

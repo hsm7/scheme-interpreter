@@ -2,8 +2,6 @@ package scheme
 
 import scheme.Interpreter.EvaluateError
 
-import scala.annotation.tailrec
-
 /** Scheme Expression API */
 object Expression {
 
@@ -71,7 +69,8 @@ case class Cons(car: Expression, cdr: Expression) extends Expression {
   }
 
   override def preprocess: Expression = car match {
-    case Symbol(s) if s == "lambda" => Lambda(Symbol(s), cdr.preprocess)
+    case Symbol("define") => Functions.define(cdr)
+    case Symbol("if")     => Functions._if(cdr.preprocess)
     case Symbol(s)  => Func(Symbol(s), cdr.preprocess)
     case _ => Cons(car.preprocess, cdr.preprocess)
   }
@@ -81,18 +80,11 @@ object Cons {
   def apply(car: Expression, cdr: Expression): Cons = new Cons(car, cdr)
 }
 
-case class Lambda(op: Symbol, params: Expression, body: Expression) extends Expression {
-  override def print: String = op + " " + params.print + body.print
-
-  override def toString: String = "(" + print + ")"
-
-  override def printAST: String = "Lambda(" + op.printAST + ", " + params.printAST + ", " + body.printAST + ")"
-
-  override def evaluate: Expression = body.evaluate
-}
 object Lambda {
-  def apply(symbol: Symbol, expr: Expression): Lambda = expr match {
-    case Cons(car, cdr) => new Lambda(symbol, car, cdr)
+  def apply(expr: Expression): Expression = expr match {
+    case Cons(car, cdr) => cdr match {
+      case Cons(h, t) => Func(Symbol("_"), car, _ => h.preprocess.evaluate)
+    }
   }
 }
 
@@ -105,7 +97,7 @@ object Lambda {
 case class Func(op: Symbol, args: Expression, f: Expression => Expression) extends Expression {
   override def print: String = op + " " + args.print
   override def toString: String = "(" + print + ")"
-  override def printAST: String = "Func(" + op.printAST + ", " + args.printAST + ")"
+  override def printAST: String = "Func(" + op.printAST + ", " + args.printAST + ", " + f + ")"
   override def evaluate: Expression = f(args.evaluate)
 }
 
@@ -119,8 +111,8 @@ object Func {
     case Symbol("car")    => Func(s, args, Functions.car)
     case Symbol("cdr")    => Func(s, args, Functions.cdr)
     case Symbol("cons")   => Func(s, args, Functions.cons)
-    case Symbol("define") => Functions.define(args)
-    case Symbol("if")     => Functions._if(args)
+    case Symbol("square") => Cons(Interpreter.Environment.get(Symbol("square")), args)
+    case Symbol("lambda") => Lambda(args)
     case _                => Cons(s, args)
   }
 }

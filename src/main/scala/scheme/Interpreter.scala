@@ -16,11 +16,15 @@ object Interpreter {
 
   def main(args: Array[String]): Unit = {
     val program: String = "(define circle-area (lambda (r) (* 3.14 (* r r))))"
-    val call: String = "(lambda (r) (* 3.14 (* r r)))"
-    val ast = Expression.parse(call)
-    println(ast.printAST)
-    println(ast.preprocess.printAST)
-    Environment.put(Symbol("r"), Number(11))
-    println(ast.preprocess.evaluate)
+    val define: String = "(define square (lambda (n) (* n n)))"
+    val call: String = "(square 5)"
+    val ast = Expression.parse(define)
+    Expression.evaluate(ast)
+    Environment.put(Symbol("n"), Number(11))
+
+    println(Expression.parse(call).printAST)
+    println(Expression.parse(call).preprocess.printAST)
+    println(Expression.evaluate(Expression.parse(call)))
+
   }
 }
