@@ -30,18 +30,32 @@ object Interpreter {
         }
       }
     }
-
   }
 
   def main(args: Array[String]): Unit = {
-    val program: String = "(define circle (lambda (r) (* 3.14 (* r r))))"
+    val params = Cons(Symbol("x"), Cons(Symbol("y"), Empty))
+    Environment.put(Symbol("+"), Lambda(params, Functions.fold(Functions.add)))
+    Environment.put(Symbol("-"), Lambda(params, Functions.fold(Functions.subtract)))
+    Environment.put(Symbol("*"), Lambda(params, Functions.fold(Functions.multiply)))
+    Environment.put(Symbol("/"), Lambda(params, Functions.fold(Functions.divide)))
+    Environment.put(Symbol("car"), Lambda(Cons(Symbol("y"), Empty), Functions.car))
+    Environment.put(Symbol("cdr"), Lambda(Cons(Symbol("y"), Empty), Functions.cdr))
+    Environment.put(Symbol("cons"), Lambda(params, Functions.cons))
+    Environment.put(Symbol("pi"), Number(3.14))
+
+    val program: String = "(define circle (lambda (r) (* pi (* r r))))"
     val define: String = "(define double (lambda (n) (+ n n)))"
-    val call: String = "(double (circle 7))"
+    val call: String = "(circle (double 7))"
     Expression.evaluate(Expression.parse(program))
     Expression.evaluate(Expression.parse(define))
-    println(Expression.parse(call).printAST)
-    println(Expression.parse(call).preprocess.printAST)
-    println(Expression.evaluate(Expression.parse(call)).printAST)
-
+    val double = Expression.parse(call)
+    val body = Expression.parse("(+ 1 n)")
+    val lambda = Lambda(Cons(Symbol("n"), Empty), _ => body.preprocess.evaluate)
+    Environment.put(Symbol("plusOne"), lambda)
+    val fun = Procedure(Symbol("plusOne"), Cons(Integer(7), Empty))
+    println(fun.preprocess)
+    println(fun.preprocess.evaluate)
+    println(double.preprocess)
+    println(double.preprocess.evaluate)
   }
 }

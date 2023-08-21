@@ -1,6 +1,6 @@
 package scheme
 
-import scheme.Interpreter.EvaluateError
+import scheme.Interpreter.{Environment, EvaluateError}
 
 /** Scheme Expression API */
 object Expression {
@@ -69,69 +69,60 @@ case class Cons(car: Expression, cdr: Expression) extends Expression {
   }
 
   override def preprocess: Expression = car match {
+    case Symbol("lambda") => cdr match {
+      case Cons(head, tail) => tail match {
+        case Cons(h, _) => Lambda(head, _ => h.preprocess.evaluate)
+      }
+    }
     case Symbol("define") => Functions.define(cdr)
-    case Symbol("if")     => Functions._if(cdr.preprocess)
-    case Symbol(s)  => Func(Symbol(s), cdr.preprocess)
+    case Symbol("if") => Functions._if(cdr.preprocess)
+    case Symbol(s) => Environment.get(Symbol(s)) match {
+      case Lambda(_, _) => Procedure(Symbol(s), cdr.preprocess)
+      case _ => Cons(Symbol(s), cdr.preprocess)
+    }
     case _ => Cons(car.preprocess, cdr.preprocess)
   }
 }
-
 object Cons {
   def apply(car: Expression, cdr: Expression): Cons = new Cons(car, cdr)
 }
 
+/** Represents Scheme lambda expressions and built in procedures. */
+case class Lambda(params: Expression, f: Expression => Expression) extends Expression {
+  override def printAST: String = "Lambda(" + params.printAST + ", " + f + ")"
+  override def print: String = "lambda " + params
+  override def toString: String = "(" + print + ")"
+}
 object Lambda {
-  def apply(expr: Expression): Expression = expr match {
-    case Cons(car, cdr) => cdr match {
-      case Cons(h, _) => Func(Symbol("^"), car, _ => h.evaluate)
-    }
-  }
+  def apply(params: Expression, f: Expression => Expression): Expression = new Lambda(params, f)
 }
 
-/**
- * Represents a Scheme function expression.
- * @param op function operation symbol
- * @param args function arguments expression
- * @param f a function maps input expression to output expression
- */
-case class Func(op: Symbol, args: Expression, f: Expression => Expression) extends Expression {
+/** Represents Scheme procedure call expressions. */
+case class Procedure(op: Symbol, args: Expression) extends Expression {
   override def print: String = op + " " + args.print
   override def toString: String = "(" + print + ")"
-  override def printAST: String = "Func(" + op.printAST + ", " + args.printAST + ", " + f + ")"
-  override def evaluate: Expression = f(args.evaluate)
-}
-
-object Func {
-  def apply(symbol: Symbol, args: Expression, f: Expression => Expression): Func = new Func(symbol, args, f)
-  def apply(s: Symbol, args: Expression): Expression = s match {
-    case Symbol("+")      => Func(s, args, Functions.fold(Functions.add))
-    case Symbol("-")      => Func(s, args, Functions.fold(Functions.subtract))
-    case Symbol("*")      => Func(s, args, Functions.fold(Functions.multiply))
-    case Symbol("/")      => Func(s, args, Functions.fold(Functions.divide))
-    case Symbol("car")    => Func(s, args, Functions.car)
-    case Symbol("cdr")    => Func(s, args, Functions.cdr)
-    case Symbol("cons")   => Func(s, args, Functions.cons)
-    case Symbol("lambda") => Lambda(args)
-    case Symbol(_) if Interpreter.Environment.contains(s) =>
-      val proc: Expression = Interpreter.Environment.get(s)
-      proc match {
-        case Func(_, params, _) =>
-          Interpreter.Environment.update(params, args)
-          proc
-      }
-    case _                => Cons(s, args)
+  override def printAST: String = "Function(" + op.printAST + ", " + args.printAST + ")"
+  override def evaluate: Expression = op.evaluate match {
+    case Lambda(params, f) =>
+      Procedure.bind(params, args.evaluate)
+      f(params.evaluate)
+    case _ => Cons(op.evaluate, Empty)
   }
 }
 
+object Procedure {
+  def apply(op: Symbol, args: Expression): Procedure = new Procedure(op, args)
+  def bind(params: Expression, args: Expression): Unit = Interpreter.Environment.update(params, args)
+}
+
 /**
- * Represents a Scheme symbol expression.
+ * Represents Scheme symbol expressions.
  * @param symbol Scheme Symbol represented as a String
  */
 case class Symbol(symbol: String) extends Expression {
   override def print: String = symbol
   override def printAST: String = "Symbol(" + symbol + ")"
   override def evaluate: Expression = Interpreter.Environment.get(this)
-
   override def hashCode(): Int = symbol.hashCode()
   override def equals(obj: Any): Boolean = obj match {
     case Symbol(s) => symbol.equals(s)
@@ -160,7 +151,7 @@ object Str {
 }
 
 /**
- * Represents a Scheme integer expression
+ * Represents Scheme integer expressions
  * @param value Int value of Scheme integer
  */
 case class Integer(value: Int) extends Value {
@@ -193,7 +184,7 @@ object Integer {
 }
 
 /**
- * Represents a Scheme number expression
+ * Represents Scheme number expressions
  * @param value Double value of Scheme number
  */
 case class Number(value: Double) extends Value {
@@ -226,7 +217,7 @@ object Number {
 }
 
 /**
- * Represents a Scheme boolean expression
+ * Represents Scheme boolean expressions
  * @param value Boolean value of Scheme boolean
  */
 case class Bool(value: Boolean) extends Value {

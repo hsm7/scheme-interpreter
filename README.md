@@ -10,11 +10,12 @@ to the following Expression abstract syntax tree.
 sealed trait Expression {
   
   // Datatype definition:
-  //    Expression  = Empty | Value | Symbol | Func | Cons
+  //    Expression  = Empty | Value | Symbol | Procedure | Lambda | Cons
   //    Empty       = Empty
   //    Value       = Integer(value: Int) | Number(value: Double) | Bool(value: Boolean) | Str(value: String)
   //    Symbol      = Symbol(s: String)
-  //    Func        = Func(op: Symbol, args: Expression, f: Expression => Expression)
+  //    Procedure   = Procedure(op: Symbol, args: Expression)
+  //    Lambda      = Lambda(params: Expression, f: Expression => Expression)
   //    Cons        = Cons(car: Expression, cdr: Expression)
   
 }

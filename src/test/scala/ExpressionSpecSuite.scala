@@ -1,11 +1,22 @@
 import org.scalatest.funspec.AnyFunSpec
-import scheme.{Bool, Empty, Expression, Integer, Number, Str, Cons, Symbol}
+import scheme.Interpreter.Environment
+import scheme.{Bool, Cons, Empty, Expression, Functions, Integer, Lambda, Number, Str, Symbol}
 
 class ExpressionSpecSuite extends AnyFunSpec {
 
+  val params: Cons = Cons(Symbol("x"), Cons(Symbol("y"), Empty))
+  Environment.put(Symbol("+"), Lambda(params, Functions.fold(Functions.add)))
+  Environment.put(Symbol("-"), Lambda(params, Functions.fold(Functions.subtract)))
+  Environment.put(Symbol("*"), Lambda(params, Functions.fold(Functions.multiply)))
+  Environment.put(Symbol("/"), Lambda(params, Functions.fold(Functions.divide)))
+  Environment.put(Symbol("car"), Lambda(Cons(Symbol("y"), Empty), Functions.car))
+  Environment.put(Symbol("cdr"), Lambda(Cons(Symbol("y"), Empty), Functions.cdr))
+  Environment.put(Symbol("cons"), Lambda(params, Functions.cons))
+  Environment.put(Symbol("pi"), Number(3.14))
+
   describe("Expression.evaluate") {
     val exp1 = Expression.parse("(* 4 (- 5 -8))")
-    val exp2 = Expression.parse("(+ 1 6.1 (+ 5.4 1.5) (+ 2 3))")
+    val exp2 = Expression.parse("(+ (+ 5.4 1.5) (* 2 3))")
     val exp3 = Expression.parse("(car (7 8 9))")
     val exp4 = Expression.parse("(car ())")
     val exp5 = Expression.parse("(cdr (7 8 9))")
@@ -48,7 +59,7 @@ class ExpressionSpecSuite extends AnyFunSpec {
     }
     it("should evaluate math expressions") {
       assert(Expression.evaluate(exp1).toString == "52")
-      assert(Expression.evaluate(exp2).toString == "19.0")
+      assert(Expression.evaluate(exp2).toString == "12.9")
     }
   }
 

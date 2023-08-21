@@ -40,7 +40,7 @@ object Parser extends RegexParsers {
    * @return expression AST for input Scheme expressions
    */
   def list(expressions: List[Expression]): Expression = expressions match {
-    case List()     => Empty()
+    case Nil     => Empty
     case car :: cdr => Cons(car, list(cdr))
   }
 
