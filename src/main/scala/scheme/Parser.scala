@@ -1,11 +1,11 @@
 package scheme
 
-import scheme.Interpreter.SyntaxError
-
 import scala.util.parsing.combinator.RegexParsers
 
 /* Scheme parser using RegexParsers from scala parser combinator */
 object Parser extends RegexParsers {
+
+  class SyntaxError(msg: String = "Lots of Irritating Silly Parentheses!") extends RuntimeException(msg)
 
   // Scheme boolean is either `#t` or `#f`
   def bool: Parser[Bool] = ("#t" | "#f") ^^ {

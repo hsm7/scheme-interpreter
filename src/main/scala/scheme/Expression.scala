@@ -1,7 +1,5 @@
 package scheme
 
-import scheme.Interpreter.EvaluateError
-
 /** Scheme Expression API */
 object Expression {
 
@@ -17,9 +15,11 @@ object Expression {
    * @param expression scheme expression to evaluate
    * @return evaluated Scheme expression for input Scheme `expression`
    */
-  def evaluate(expression: Expression): Expression = expression.preprocess.evaluate.simplify
+  def evaluate(expression: Expression)(implicit env: Environment): Expression = expression.preprocess.evaluate.simplify
 
 }
+
+class EvaluateError(msg: String = "Invalid expression") extends RuntimeException(msg)
 
 /* Expression ADT represents Scheme expressions abstract syntax tree */
 sealed trait Expression {
@@ -32,7 +32,7 @@ sealed trait Expression {
   //    Cons        = Cons(car: Expression, cdr: Expression)
 
   /* Evaluate this Scheme expression. */
-  def evaluate: Expression = this
+  def evaluate(implicit env: Environment): Expression = this
   /* Parse Scheme procedure expressions from list expression. */
   def preprocess: Expression = this
   /* Simplify this Scheme expression. Removes Empty expressions after evaluating
@@ -62,13 +62,17 @@ case class Cons(car: Expression, cdr: Expression) extends Expression {
 
   override def toString: String = "(" + print + ")"
   override def printAST: String = "List(" + car.printAST + ", " + cdr.printAST + ")"
-  override def evaluate: Expression = Cons(car.evaluate, cdr.evaluate)
+  override def evaluate(implicit env: Environment): Expression = car match {
+    case Symbol(s) if s == "begin" => cdr.evaluate.simplify.asInstanceOf[Cons].car
+    case _ => Cons(car.evaluate, cdr.evaluate)
+  }
   override def simplify: Expression = car match {
     case Empty => cdr.simplify
     case _ => Cons(car, cdr.simplify)
   }
 
   override def preprocess: Expression = car match {
+    case Symbol(s) if s == "begin"  => Cons(car, cdr.preprocess)
     case Symbol(s) if s == "define" => Functions.define(cdr)
     case Symbol(s) if s == "lambda" => Functions.lambda(cdr)
     case Symbol(s) if s == "if"     => Functions._if(cdr.preprocess)
@@ -95,19 +99,18 @@ case class Procedure(op: Symbol, args: Expression) extends Expression {
   override def print: String = op + " " + args.print
   override def toString: String = "(" + print + ")"
   override def printAST: String = "Function(" + op.printAST + ", " + args.printAST + ")"
-  override def evaluate: Expression = op.evaluate match {
+  override def evaluate(implicit env: Environment): Expression = op.evaluate match {
     case Lambda(params, f) =>
-      Interpreter.Environment.create()
-      Procedure.bind(params, args.evaluate)
+      env.create()
+      env.bind(params, args.evaluate)
       val exp = f(params.evaluate)
-      Interpreter.Environment.destroy()
+      env.destroy()
       exp
   }
 }
 
 object Procedure {
   def apply(op: Symbol, args: Expression): Procedure = new Procedure(op, args)
-  def bind(params: Expression, args: Expression): Unit = Interpreter.Environment.update(params, args)
 }
 
 /**
@@ -117,7 +120,7 @@ object Procedure {
 case class Symbol(symbol: String) extends Expression {
   override def print: String = symbol
   override def printAST: String = "Symbol(" + symbol + ")"
-  override def evaluate: Expression = Interpreter.Environment.get(this)
+  override def evaluate(implicit env: Environment): Expression = env.get(this)
   override def hashCode(): Int = symbol.hashCode()
   override def equals(obj: Any): Boolean = obj match {
     case Symbol(s) => symbol.equals(s)
@@ -150,6 +153,11 @@ object Str {
  * @param value Int value of Scheme integer
  */
 case class Integer(value: Int) extends Value {
+  def < (expr: Expression) : Expression = expr match {
+    case Integer(b) => Bool(value < b)
+    case Number(b) => Bool(value < b)
+    case _ => throw new EvaluateError(expr + " is not a number")
+  }
   def + (expr: Expression) : Expression = expr match {
     case Integer(b) => Integer(value + b)
     case Number(b) => Number(value + b)

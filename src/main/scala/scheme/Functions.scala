@@ -1,7 +1,5 @@
 package scheme
 
-import scheme.Interpreter.{Environment, EvaluateError}
-
 /* Functional utils to construct Scheme expressions */
 object Functions {
 
@@ -16,7 +14,7 @@ object Functions {
   }
 
   /** Construct Scheme procedure expressions */
-  def symbol(symbol: Symbol, expr: Expression): Expression = Environment.get(symbol) match {
+  def symbol(symbol: Symbol, expr: Expression)(implicit env: Environment): Expression = env.get(symbol) match {
     case Lambda(_, _) => Procedure(symbol, expr.preprocess)
     case _ => Cons(symbol, expr.preprocess)
   }
@@ -36,11 +34,13 @@ object Functions {
   }
 
   /** Map a Scheme symbol to an expression in the global environment */
-  def define: Expression => Expression = {
+  def define(exp: Expression)(implicit env: Environment): Expression = exp match {
     case Empty => Empty()
     case Cons(car, cdr) => car match {
       case Symbol(s) => cdr match {
-        case Cons(h, _) => Interpreter.Environment.put(Symbol(s), h.preprocess)
+        case Cons(h, _) =>
+          env.put(Symbol(s), h.preprocess)
+          Empty()
       }
     }
   }
@@ -70,6 +70,12 @@ object Functions {
       case Cons(head, _) => Cons(car, head)
     }
     case exp => throw new EvaluateError(exp + " is not a list")
+  }
+
+  /* Compare Scheme integer and number expression */
+  def lt: BiFunc = (n, m) => n match {
+    case Integer(a) => Integer(a) < m
+    case _ => throw new EvaluateError(n + " is not a number")
   }
 
   /* Addition of Scheme integer and number expression */

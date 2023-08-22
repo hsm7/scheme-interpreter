@@ -1,64 +1,30 @@
 package scheme
 
-import scala.annotation.tailrec
+import Environment.global
 
 object Interpreter {
-
-  class SyntaxError(msg: String = "Lots of Irritating Silly Parentheses!") extends RuntimeException(msg)
-  class EvaluateError(msg: String = "Invalid expression") extends RuntimeException(msg)
-  object Environment {
-    val stack: collection.mutable.Stack[collection.mutable.Map[Symbol, Expression]] = collection.mutable.Stack.empty
-
-    create()
-    val params: Cons = Cons(Symbol("x"), Cons(Symbol("y"), Empty))
-    Environment.put(Symbol("+"),    Lambda(params, Functions.fold(Functions.add)))
-    Environment.put(Symbol("-"),    Lambda(params, Functions.fold(Functions.subtract)))
-    Environment.put(Symbol("*"),    Lambda(params, Functions.fold(Functions.multiply)))
-    Environment.put(Symbol("/"),    Lambda(params, Functions.fold(Functions.divide)))
-    Environment.put(Symbol("car"),  Lambda(Cons(Symbol("list"), Empty), Functions.car))
-    Environment.put(Symbol("cdr"),  Lambda(Cons(Symbol("list"), Empty), Functions.cdr))
-    Environment.put(Symbol("cons"), Lambda(params, Functions.cons))
-    Environment.put(Symbol("pi"),   Number(3.14))
-
-    def get(s: Symbol): Expression = {
-      stack.find(_.contains(s)).getOrElse(throw new NoSuchElementException(s"$s is not defined"))(s)
-    }
-
-    def contains(s: Symbol): Boolean = stack.exists(_.contains(s))
-
-    def put(s: Symbol, expr: Expression): Expression = {
-      stack.top.put(s, expr)
-      Empty()
-    }
-
-    @tailrec
-    def update(params: Expression, args: Expression): Expression = params match {
-      case Empty => Empty()
-      case Cons(car, cdr) => car match {
-        case Symbol(s) => args match {
-          case Cons(h, t) =>
-            put(Symbol(s), h)
-            update(cdr, t)
-        }
-      }
-    }
-
-    def create(): Unit = stack.push(collection.mutable.Map.empty)
-    def destroy(): Unit = stack.pop()
-  }
 
   def main(args: Array[String]): Unit = {
     val program: String = "(define circle (lambda (r) (* pi (* r r))))"
     val define: String = "(define double (lambda (n) (+ n n)))"
-    val call: String = "(circle (double 7))"
+    val factorial: String = "(begin (define fact (lambda (n) (if (< n 1) 1 (* n (fact (- n 1)))))) (fact 10))"
+    val fibonacci: String = "(define fib (lambda (n) (if (< n 2) n (+ (fib (- n 2)) (fib (- n 1))))))"
+    val call: String = "(circle (double x))"
+    val fib: String = "(fib 10)"
     Expression.evaluate(Expression.parse(program))
     Expression.evaluate(Expression.parse(define))
+    Expression.evaluate(Expression.parse(fibonacci))
     val double = Expression.parse(call)
-    val body = Expression.parse("(+ 1 n)")
-    val lambda = Lambda(Cons(Symbol("n"), Empty), _ => body.preprocess.evaluate)
-    Environment.put(Symbol("plusOne"), lambda)
+    val fib10 = Expression.parse(fib)
+    val body = Expression.parse("(+ 1 x)")
+    val lambda = Lambda(Cons(Symbol("x"), Empty), _ => body.preprocess.evaluate)
+    global.put(Symbol("plusOne"), lambda)
     val fun = Procedure(Symbol("plusOne"), Cons(Number(41), Empty))
+    global.put(Symbol("x"),   Integer(7))
     println(fun + " => " + Expression.evaluate(fun))
     println(double + " => " + Expression.evaluate(double))
+    println(fib10 + " => " + Expression.evaluate(fib10))
+    println(factorial + " => " + Expression.evaluate(Expression.parse(factorial)))
+    println(global.size)
   }
 }
