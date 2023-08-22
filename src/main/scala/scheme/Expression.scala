@@ -1,6 +1,6 @@
 package scheme
 
-import scheme.Interpreter.{Environment, EvaluateError}
+import scheme.Interpreter.EvaluateError
 
 /** Scheme Expression API */
 object Expression {
@@ -33,7 +33,7 @@ sealed trait Expression {
 
   /* Evaluate this Scheme expression. */
   def evaluate: Expression = this
-  /* Parse Scheme function expression from this expression. */
+  /* Parse Scheme procedure expressions from list expression. */
   def preprocess: Expression = this
   /* Simplify this Scheme expression. Removes Empty expressions after evaluating
    * define expressions */
@@ -69,18 +69,11 @@ case class Cons(car: Expression, cdr: Expression) extends Expression {
   }
 
   override def preprocess: Expression = car match {
-    case Symbol("lambda") => cdr match {
-      case Cons(head, tail) => tail match {
-        case Cons(h, _) => Lambda(head, _ => h.preprocess.evaluate)
-      }
-    }
-    case Symbol("define") => Functions.define(cdr)
-    case Symbol("if") => Functions._if(cdr.preprocess)
-    case Symbol(s) => Environment.get(Symbol(s)) match {
-      case Lambda(_, _) => Procedure(Symbol(s), cdr.preprocess)
-      case _ => Cons(Symbol(s), cdr.preprocess)
-    }
-    case _ => Cons(car.preprocess, cdr.preprocess)
+    case Symbol(s) if s == "define" => Functions.define(cdr)
+    case Symbol(s) if s == "lambda" => Functions.lambda(cdr)
+    case Symbol(s) if s == "if"     => Functions._if(cdr.preprocess)
+    case Symbol(s)                  => Functions.symbol(Symbol(s), cdr)
+    case _                          => Cons(car.preprocess, cdr.preprocess)
   }
 }
 object Cons {
@@ -106,7 +99,6 @@ case class Procedure(op: Symbol, args: Expression) extends Expression {
     case Lambda(params, f) =>
       Procedure.bind(params, args.evaluate)
       f(params.evaluate)
-    case _ => Cons(op.evaluate, Empty)
   }
 }
 

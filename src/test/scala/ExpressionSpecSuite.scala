@@ -1,18 +1,7 @@
 import org.scalatest.funspec.AnyFunSpec
-import scheme.Interpreter.Environment
-import scheme.{Bool, Cons, Empty, Expression, Functions, Integer, Lambda, Number, Str, Symbol}
+import scheme.{Bool, Empty, Expression, Integer, Number, Str, Symbol}
 
 class ExpressionSpecSuite extends AnyFunSpec {
-
-  val params: Cons = Cons(Symbol("x"), Cons(Symbol("y"), Empty))
-  Environment.put(Symbol("+"), Lambda(params, Functions.fold(Functions.add)))
-  Environment.put(Symbol("-"), Lambda(params, Functions.fold(Functions.subtract)))
-  Environment.put(Symbol("*"), Lambda(params, Functions.fold(Functions.multiply)))
-  Environment.put(Symbol("/"), Lambda(params, Functions.fold(Functions.divide)))
-  Environment.put(Symbol("car"), Lambda(Cons(Symbol("y"), Empty), Functions.car))
-  Environment.put(Symbol("cdr"), Lambda(Cons(Symbol("y"), Empty), Functions.cdr))
-  Environment.put(Symbol("cons"), Lambda(params, Functions.cons))
-  Environment.put(Symbol("pi"), Number(3.14))
 
   describe("Expression.evaluate") {
     val exp1 = Expression.parse("(* 4 (- 5 -8))")

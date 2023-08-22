@@ -1,11 +1,25 @@
 package scheme
 
-import scheme.Interpreter.EvaluateError
+import scheme.Interpreter.{Environment, EvaluateError}
 
-/* Functional utils to construct Scheme function expressions */
+/* Functional utils to construct Scheme expressions */
 object Functions {
+
   // Binary mapping function of Scheme expressions
   type BiFunc = (Expression, Expression) => Expression
+
+  /** Construct Schem lambda expressions */
+  def lambda: Expression => Expression = {
+    case Cons(head, tail) => tail match {
+      case Cons(h, _) => Lambda(head, _ => h.preprocess.evaluate)
+    }
+  }
+
+  /** Construct Scheme procedure expressions */
+  def symbol(symbol: Symbol, expr: Expression): Expression = Environment.get(symbol) match {
+    case Lambda(_, _) => Procedure(symbol, expr.preprocess)
+    case _ => Cons(symbol, expr.preprocess)
+  }
 
   /** Scheme if expression */
   def _if: Expression => Expression = {
@@ -53,10 +67,7 @@ object Functions {
   def cons: Expression => Expression = {
     case Cons(car, cdr) => cdr match {
       case Empty => Cons(car, Empty())
-      case Cons(head, _) => head match {
-        case Empty => Cons(car, Empty())
-        case Cons(h, t) => Cons(car, Cons(h, t))
-      }
+      case Cons(head, _) => Cons(car, head)
     }
     case exp => throw new EvaluateError(exp + " is not a list")
   }
