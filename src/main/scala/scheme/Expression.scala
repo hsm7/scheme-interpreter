@@ -97,8 +97,11 @@ case class Procedure(op: Symbol, args: Expression) extends Expression {
   override def printAST: String = "Function(" + op.printAST + ", " + args.printAST + ")"
   override def evaluate: Expression = op.evaluate match {
     case Lambda(params, f) =>
+      Interpreter.Environment.create()
       Procedure.bind(params, args.evaluate)
-      f(params.evaluate)
+      val exp = f(params.evaluate)
+      Interpreter.Environment.destroy()
+      exp
   }
 }
 

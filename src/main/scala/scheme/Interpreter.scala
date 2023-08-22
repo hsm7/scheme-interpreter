@@ -7,8 +7,9 @@ object Interpreter {
   class SyntaxError(msg: String = "Lots of Irritating Silly Parentheses!") extends RuntimeException(msg)
   class EvaluateError(msg: String = "Invalid expression") extends RuntimeException(msg)
   object Environment {
-    var global: Map[Symbol, Expression] = Map()
+    val stack: collection.mutable.Stack[collection.mutable.Map[Symbol, Expression]] = collection.mutable.Stack.empty
 
+    create()
     val params: Cons = Cons(Symbol("x"), Cons(Symbol("y"), Empty))
     Environment.put(Symbol("+"),    Lambda(params, Functions.fold(Functions.add)))
     Environment.put(Symbol("-"),    Lambda(params, Functions.fold(Functions.subtract)))
@@ -19,12 +20,16 @@ object Interpreter {
     Environment.put(Symbol("cons"), Lambda(params, Functions.cons))
     Environment.put(Symbol("pi"),   Number(3.14))
 
+    def get(s: Symbol): Expression = {
+      stack.find(_.contains(s)).getOrElse(throw new NoSuchElementException(s"$s is not defined"))(s)
+    }
+
+    def contains(s: Symbol): Boolean = stack.exists(_.contains(s))
+
     def put(s: Symbol, expr: Expression): Expression = {
-      global = global updated(s, expr)
+      stack.top.put(s, expr)
       Empty()
     }
-    def get(s: Symbol): Expression = global(s)
-    def contains(s: Symbol): Boolean = global contains s
 
     @tailrec
     def update(params: Expression, args: Expression): Expression = params match {
@@ -37,6 +42,9 @@ object Interpreter {
         }
       }
     }
+
+    def create(): Unit = stack.push(collection.mutable.Map.empty)
+    def destroy(): Unit = stack.pop()
   }
 
   def main(args: Array[String]): Unit = {

@@ -28,8 +28,11 @@ sealed trait Expression {
 - [x] Definition expressions
 - [x] Conditional expressions
 - [x] Procedure call expressions
-- [ ] Interpreter REPL
+- [x] Lambda expressions
 - [ ] Quotation expressions
 - [ ] Assignment expressions
-- [x] Lambda expressions
-- [ ] Local environments and lexical scoping
+- [x] Local environments and lexical scoping
+- [ ] Interpreter REPL
+- [ ] Script files
+- [ ] SBT run configurations (REPL and script files)
+- [ ] Documentations and examples
