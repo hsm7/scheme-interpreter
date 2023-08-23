@@ -31,7 +31,7 @@ sealed trait Expression {
 - [x] Lambda expressions
 - [ ] Quotation expressions
 - [ ] Assignment expressions
-- [x] Local environments and lexical scoping
+- [x] Local environments and lexical scopes
 - [ ] Interpreter REPL
 - [ ] Script files
 - [ ] SBT run configurations (REPL and script files)
