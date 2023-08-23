@@ -1,5 +1,7 @@
 package scheme
 
+import collection.mutable
+
 /** Scheme Expression API */
 object Expression {
 
@@ -101,10 +103,9 @@ case class Procedure(op: Symbol, args: Expression) extends Expression {
   override def printAST: String = "Function(" + op.printAST + ", " + args.printAST + ")"
   override def evaluate(implicit env: Environment): Expression = op.evaluate match {
     case Lambda(params, f) =>
-      env.create()
-      env.bind(params, args.evaluate)
+      env.push(Environment.bind(params, args.evaluate))
       val exp = f(params.evaluate)
-      env.destroy()
+      env.pop
       exp
   }
 }

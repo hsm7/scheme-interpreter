@@ -3,46 +3,45 @@ package scheme
 import scala.annotation.tailrec
 import collection.mutable
 
-class Environment {
+class Environment(val stack: mutable.Stack[mutable.Map[Symbol, Expression]]) {
 
-  private val stack: mutable.Stack[mutable.Map[Symbol, Expression]] = mutable.Stack.empty
-
-  def get(s: Symbol): Expression = stack.find(_.contains(s)).getOrElse(throw new NoSuchElementException(s.symbol))(s)
+  def get(s: Symbol): Expression = stack.find(_.contains(s)).get(s)
   def contains(s: Symbol): Boolean = stack.exists(_.contains(s))
-  def put(s: Symbol, expr: Expression): Unit = stack.top.put(s, expr)
-  def create(): Unit = stack.push(mutable.Map.empty)
-  def destroy(): Unit = stack.pop()
+  def put(s: Symbol, expr: Expression): Unit = stack.head.put(s, expr)
   def size: Int = stack.size
+  def push(map: mutable.Map[Symbol, Expression]): Unit = stack.push(map)
+  def pop: mutable.Map[Symbol, Expression] = stack.pop
 
-  @tailrec
-  final def bind(params: Expression, args: Expression): Unit = params match {
-    case Empty => Empty()
-    case Cons(car, cdr) => car match {
-      case Symbol(s) => args match {
-        case Cons(h, t) =>
-          put(Symbol(s), h)
-          bind(cdr, t)
-      }
-    }
-  }
 }
 
 object Environment {
 
   implicit lazy val global: Environment = {
-    val global = new Environment
-    global.create()
     val params: Cons = Cons(Symbol("x"), Cons(Symbol("y"), Empty))
-    global.put(Symbol("<"),    Lambda(params, Functions.fold(Functions.lt)))
-    global.put(Symbol("+"),    Lambda(params, Functions.fold(Functions.add)))
-    global.put(Symbol("-"),    Lambda(params, Functions.fold(Functions.subtract)))
-    global.put(Symbol("*"),    Lambda(params, Functions.fold(Functions.multiply)))
-    global.put(Symbol("/"),    Lambda(params, Functions.fold(Functions.divide)))
-    global.put(Symbol("car"),  Lambda(Cons(Symbol("list"), Empty), Functions.car))
-    global.put(Symbol("cdr"),  Lambda(Cons(Symbol("list"), Empty), Functions.cdr))
-    global.put(Symbol("cons"), Lambda(params, Functions.cons))
-    global.put(Symbol("pi"),   Number(3.14))
-    global
+    new Environment(mutable.Stack(mutable.Map[Symbol, Expression](
+      Symbol("<") -> Lambda(params, Functions.fold(Functions.lt)),
+      Symbol("+") -> Lambda(params, Functions.fold(Functions.add)),
+      Symbol("-") -> Lambda(params, Functions.fold(Functions.subtract)),
+      Symbol("*") -> Lambda(params, Functions.fold(Functions.multiply)),
+      Symbol("/") -> Lambda(params, Functions.fold(Functions.divide)),
+      Symbol("car") -> Lambda(Cons(Symbol("list"), Empty), Functions.car),
+      Symbol("cdr") -> Lambda(Cons(Symbol("list"), Empty), Functions.cdr),
+      Symbol("cons") -> Lambda(params, Functions.cons),
+      Symbol("pi") -> Number(3.14)
+    )))
   }
 
+  def bind(params: Expression, args: Expression): mutable.Map[Symbol, Expression] = {
+    @tailrec
+    def _bind(params: Expression, args: Expression, map: mutable.Map[Symbol, Expression]):
+    mutable.Map[Symbol, Expression] = params match {
+      case Empty => map
+      case Cons(car, cdr) => car match {
+        case Symbol(s) => args match {
+          case Cons(h, t) => _bind(cdr, t, map += (Symbol(s) -> h))
+        }
+      }
+    }
+    _bind(params, args, mutable.Map.empty[Symbol, Expression])
+  }
 }
