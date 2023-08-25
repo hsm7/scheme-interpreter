@@ -3,11 +3,10 @@ package scheme
 import scala.annotation.tailrec
 import collection.mutable
 
-class Environment(val stack: mutable.Stack[mutable.Map[Symbol, Expression]]) {
+class Environment(private val stack: mutable.Stack[mutable.Map[Symbol, Expression]]) {
 
   def get(s: Symbol): Expression = stack.find(_.contains(s)).get(s)
-  def contains(s: Symbol): Boolean = stack.exists(_.contains(s))
-  def put(s: Symbol, expr: Expression): Unit = stack.head.put(s, expr)
+  def put(s: Symbol, expr: Expression): Unit = stack.top.put(s, expr)
   def size: Int = stack.size
   def push(map: mutable.Map[Symbol, Expression]): Unit = stack.push(map)
   def pop: mutable.Map[Symbol, Expression] = stack.pop

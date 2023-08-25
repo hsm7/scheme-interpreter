@@ -13,17 +13,14 @@ object Parser extends RegexParsers {
     case "#f" => Bool(false)
   }
 
-  // Scheme integer is an optional `-` followed by one or more digits
-  def int: Parser[Integer] = "-?\\d+".r ^^ Integer.from
-
   // Scheme number is an optional `-` followed by one or more digits, followed by `.` and zero or more digits
-  def num: Parser[Number] = "-?\\d+\\.\\d*".r ^^ Number.from
+  def num: Parser[Number] = "-?\\d+\\.?\\d*".r ^^ Number.from
 
   // Scheme string can have any character except `"` wrapped in ""
   def str: Parser[Str] = "\"" ~> "[^\"]*".r <~ "\"" ^^ Str.apply
 
   // Scheme primitive values can be any of the these patterns
-  def value: Parser[Value] = bool | num | int | str
+  def value: Parser[Value] = bool | num | str
 
   // Scheme identifiers allows alphanumeric chars, some symbols, and can't start with a digit
   def symbol : Parser[Symbol] = "[a-zA-Z=*+-/<>!\\?][a-zA-Z0-9=*+-/<>!\\?]*".r ^^ Symbol.apply

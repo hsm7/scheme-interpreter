@@ -1,6 +1,5 @@
 package scheme
 
-import collection.mutable
 
 /** Scheme Expression API */
 object Expression {
@@ -150,65 +149,27 @@ object Str {
 }
 
 /**
- * Represents Scheme integer expressions
- * @param value Int value of Scheme integer
+ * Represents Scheme number expressions
+ * @param value Double value of Scheme number
  */
-case class Integer(value: Int) extends Value {
+case class Number(value: BigDecimal) extends Value {
   def < (expr: Expression) : Expression = expr match {
-    case Integer(b) => Bool(value < b)
     case Number(b) => Bool(value < b)
     case _ => throw new EvaluateError(expr + " is not a number")
   }
   def + (expr: Expression) : Expression = expr match {
-    case Integer(b) => Integer(value + b)
     case Number(b) => Number(value + b)
     case _ => throw new EvaluateError(expr + " is not a number")
   }
   def - (expr: Expression) : Expression = expr match {
-    case Integer(b) => Integer(value - b)
     case Number(b) => Number(value - b)
     case _ => throw new EvaluateError(expr + " is not a number")
   }
   def * (expr: Expression) : Expression = expr match {
-    case Integer(b) => Integer(value * b)
     case Number(b) => Number(value * b)
     case _ => throw new EvaluateError(expr + " is not a number")
   }
   def / (expr: Expression) : Expression = expr match {
-    case Integer(b) => Integer(value / b)
-    case Number(b) => Number(value / b)
-    case _ => throw new EvaluateError(expr + " is not a number")
-  }
-  override def print: String = value.toString
-  override def printAST: String = "Int(" + value + ")"
-}
-object Integer {
-  def apply(n: Int): Integer = new Integer(n)
-  def from(s: String): Integer = Integer(s.toInt)
-}
-
-/**
- * Represents Scheme number expressions
- * @param value Double value of Scheme number
- */
-case class Number(value: Double) extends Value {
-  def + (expr: Expression) : Expression = expr match {
-    case Integer(b) => Number(value + b)
-    case Number(b) => Number(value + b)
-    case _ => throw new EvaluateError(expr + " is not a number")
-  }
-  def - (expr: Expression) : Expression = expr match {
-    case Integer(b) => Number(value - b)
-    case Number(b) => Number(value - b)
-    case _ => throw new EvaluateError(expr + " is not a number")
-  }
-  def * (expr: Expression) : Expression = expr match {
-    case Integer(b) => Number(value * b)
-    case Number(b) => Number(value * b)
-    case _ => throw new EvaluateError(expr + " is not a number")
-  }
-  def / (expr: Expression) : Expression = expr match {
-    case Integer(b) => Number(value / b)
     case Number(b) => Number(value / b)
     case _ => throw new EvaluateError(expr + " is not a number")
   }
@@ -216,8 +177,8 @@ case class Number(value: Double) extends Value {
   override def printAST: String = "Num(" + value + ")"
 }
 object Number {
-  def apply(n: Double): Number = new Number(n)
-  def from(s: String): Number = Number(s.toDouble)
+  def apply(n: BigDecimal): Number = new Number(n)
+  def from(s: String): Number = Number(BigDecimal(s))
 }
 
 /**

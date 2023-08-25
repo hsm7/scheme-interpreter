@@ -74,34 +74,30 @@ object Functions {
 
   /* Compare Scheme integer and number expression */
   def lt: BiFunc = (n, m) => n match {
-    case Integer(a) => Integer(a) < m
+    case Number(a) => Number(a) < m
     case _ => throw new EvaluateError(n + " is not a number")
   }
 
   /* Addition of Scheme integer and number expression */
   def add: BiFunc = (n, m) => n match {
-    case Integer(a) => Integer(a) + m
     case Number(a)  => Number(a) + m
     case _ => throw new EvaluateError(n + " is not a number")
   }
 
   /* Subtraction of Scheme integer and number expression. */
   def subtract: BiFunc = (n, m) => n match {
-    case Integer(a) => Integer(a) - m
     case Number(a)  => Number(a) - m
     case _ => throw new EvaluateError(n + " is not a number")
   }
 
   /* Multiplication of Scheme integer and number expression. */
   def multiply: BiFunc = (n, m) => n match {
-    case Integer(a) => Integer(a) * m
     case Number(a)  => Number(a) * m
     case _ => throw new EvaluateError(n + " is not a number")
   }
 
   /* Division of Scheme integer and number expression. */
   def divide: BiFunc = (n, m) => n match {
-    case Integer(a) => Integer(a) / m
     case Number(a)  => Number(a) / m
     case _ => throw new EvaluateError(n + " is not a number")
   }
