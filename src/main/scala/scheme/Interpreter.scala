@@ -4,29 +4,23 @@ import Environment.global
 
 object Interpreter {
 
+  implicit class EvaluateString(val value: String) extends AnyVal {
+    def eval (implicit env: Environment): Expression = Expression.evaluate(Expression.parse(value))(env)
+  }
+
   def main(args: Array[String]): Unit = {
-    val program: String = "(define circle (lambda (r) (* pi (* r r))))"
-    val define: String = "(define double (lambda (n) (+ n n)))"
+    val program: String = "(begin (define circle (lambda (r) (* pi (* r r)))) (define double (lambda (n) (+ n n))) (double (circle 6.5)))"
     val factorial: String = "(begin (define fact (lambda (n) (if (< n 1) 1 (* n (fact (- n 1)))))) (fact 10))"
-    val fibonacci: String = "(define fib (lambda (n) (if (< n 2) 1 (+ (fib (- n 2)) (fib (- n 1))))))"
-    val call: String = "(circle (double 6.5))"
-    val fib: String = "(fib 10)"
-    Expression.evaluate(Expression.parse(program))
-    Expression.evaluate(Expression.parse(define))
-    Expression.evaluate(Expression.parse(fibonacci))
-    val double = Expression.parse(call)
-    val fib10 = Expression.parse(fib)
-    val body = Expression.parse("(+ 1 x)")
-    val lambda = Lambda(Cons(Symbol("x"), Empty), _ => body.preprocess.evaluate)
-    global.put(Symbol("plusOne"), lambda)
-    val fun = Procedure(Symbol("plusOne"), Cons(Number(41), Empty))
-    println("=> " + fun)
-    println(Expression.evaluate(fun))
-    println("=> " + double)
-    println(Expression.evaluate(double))
-    println("=> " + fib10)
-    println(Expression.evaluate(fib10))
+    val fibonacci: String = "(begin (define fib (lambda (n) (if (< n 2) 1 (+ (fib (- n 2)) (fib (- n 1)))))) (fib 10))"
+    println("=> " + program)
+    println(program.eval)
+    println("=> " + fibonacci)
+    println(fibonacci.eval)
     println("=> " + factorial)
-    println(Expression.evaluate(Expression.parse(factorial)))
+    println(factorial.eval)
+
+    val list = Cons(Number(7), Cons(Number(6), Empty))
+    println(list)
+    println(Cons.from(Number(7), Number(6)))
   }
 }

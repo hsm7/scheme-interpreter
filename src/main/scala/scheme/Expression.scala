@@ -1,5 +1,7 @@
 package scheme
 
+import scala.annotation.tailrec
+
 
 /** Scheme Expression API */
 object Expression {
@@ -82,7 +84,25 @@ case class Cons(car: Expression, cdr: Expression) extends Expression {
   }
 }
 object Cons {
-  def apply(car: Expression, cdr: Expression): Cons = new Cons(car, cdr)
+  def apply(car: Expression, cdr: Cons): Cons = new Cons(car, cdr)
+  def from(values: Expression*): Cons = {
+    @tailrec
+    def build(valSeq: Seq[Expression], acc: Expression): Cons =
+      if (valSeq.isEmpty) acc.asInstanceOf[Cons]
+      else build(valSeq.tail, Cons(valSeq.head, acc))
+
+    build(values.reverse, Empty())
+  }
+  def cdr(exp: Expression): Expression = exp match {
+    case Empty => Empty()
+    case Cons(_, cdr) => cdr
+    case _ => throw new EvaluateError(exp + " is not a list")
+  }
+  def car(exp: Expression): Expression = exp match {
+    case Empty => Empty()
+    case Cons(car, _) => car
+    case _ => throw new EvaluateError(exp + " is not a list")
+  }
 }
 
 /** Represents Scheme lambda expressions and built in procedures. */
