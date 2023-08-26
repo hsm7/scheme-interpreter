@@ -66,7 +66,7 @@ case class Cons(car: Expression, cdr: Expression) extends Expression {
   override def toString: String = "(" + print + ")"
   override def printAST: String = "List(" + car.printAST + ", " + cdr.printAST + ")"
   override def evaluate(implicit env: Environment): Expression = car match {
-    case Symbol(s) if s == "begin" => cdr.evaluate.simplify.asInstanceOf[Cons].car
+    case Symbol(s) if s == "begin" => Cons.car(cdr.evaluate.simplify)
     case _ => Cons(car.evaluate, cdr.evaluate)
   }
   override def simplify: Expression = car match {
@@ -76,15 +76,15 @@ case class Cons(car: Expression, cdr: Expression) extends Expression {
 
   override def preprocess: Expression = car match {
     case Symbol(s) if s == "begin"  => Cons(car, cdr.preprocess)
-    case Symbol(s) if s == "define" => Functions.define(cdr)
-    case Symbol(s) if s == "lambda" => Functions.lambda(cdr)
-    case Symbol(s) if s == "if"     => Functions._if(cdr.preprocess)
-    case Symbol(s)                  => Functions.symbol(Symbol(s), cdr)
+    case Symbol(s) if s == "define" => Utils.define(cdr)
+    case Symbol(s) if s == "lambda" => Utils.lambda(cdr)
+    case Symbol(s) if s == "if"     => Utils._if(cdr.preprocess)
+    case Symbol(s)                  => Utils.symbol(Symbol(s), cdr)
     case _                          => Cons(car.preprocess, cdr.preprocess)
   }
 }
 object Cons {
-  def apply(car: Expression, cdr: Cons): Cons = new Cons(car, cdr)
+  def apply(car: Expression, cdr: Expression): Cons = new Cons(car, cdr)
   def from(values: Expression*): Cons = {
     @tailrec
     def build(valSeq: Seq[Expression], acc: Expression): Cons =
@@ -122,7 +122,7 @@ case class Procedure(op: Symbol, args: Expression) extends Expression {
   override def printAST: String = "Function(" + op.printAST + ", " + args.printAST + ")"
   override def evaluate(implicit env: Environment): Expression = op.evaluate match {
     case Lambda(params, f) =>
-      env.push(Environment.bind(params, args.evaluate))
+      env.push(Environment.from(params, args.evaluate))
       val exp = f(params.evaluate)
       env.pop
       exp

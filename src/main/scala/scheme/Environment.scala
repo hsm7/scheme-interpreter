@@ -19,27 +19,27 @@ object Environment {
     val param: Cons = Cons.from(Symbol("x"))
     val params: Cons = Cons.from(Symbol("x"), Symbol("y"))
     new Environment(mutable.Stack(mutable.Map[Symbol, Expression](
-      Symbol("<") -> Lambda(params, Functions.lt),
-      Symbol("+") -> Lambda(params, Functions.add),
-      Symbol("-") -> Lambda(params, Functions.subtract),
-      Symbol("*") -> Lambda(params, Functions.multiply),
-      Symbol("/") -> Lambda(params, Functions.divide),
-      Symbol("car") -> Lambda(param, Functions.car),
-      Symbol("cdr") -> Lambda(param, Functions.cdr),
-      Symbol("cons") -> Lambda(params, Functions.cons),
+      Symbol("<") -> Lambda(params, Predef.lt),
+      Symbol("+") -> Lambda(params, Predef.add),
+      Symbol("-") -> Lambda(params, Predef.subtract),
+      Symbol("*") -> Lambda(params, Predef.multiply),
+      Symbol("/") -> Lambda(params, Predef.divide),
+      Symbol("car") -> Lambda(param, Predef.car),
+      Symbol("cdr") -> Lambda(param, Predef.cdr),
+      Symbol("cons") -> Lambda(params, Predef.cons),
       Symbol("pi") -> Number(3.14)
     )))
   }
 
-  def bind(params: Expression, args: Expression): mutable.Map[Symbol, Expression] = {
+  def from(params: Expression, args: Expression): mutable.Map[Symbol, Expression] = {
     @tailrec
-    def _bind(params: Expression, args: Expression, map: mutable.Map[Symbol, Expression]):
+    def _from(params: Expression, args: Expression, map: mutable.Map[Symbol, Expression]):
     mutable.Map[Symbol, Expression] = params match {
       case Empty => map
       case Cons(car, cdr) => car match {
-        case Symbol(s) => _bind(cdr, Cons.cdr(args), map += (Symbol(s) -> Cons.car(args)))
+        case Symbol(s) => _from(cdr, Cons.cdr(args), map += (Symbol(s) -> Cons.car(args)))
       }
     }
-    _bind(params, args, mutable.Map.empty[Symbol, Expression])
+    _from(params, args, mutable.Map.empty[Symbol, Expression])
   }
 }

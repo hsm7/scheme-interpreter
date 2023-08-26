@@ -18,9 +18,5 @@ object Interpreter {
     println(fibonacci.eval)
     println("=> " + factorial)
     println(factorial.eval)
-
-    val list = Cons(Number(7), Cons(Number(6), Empty))
-    println(list)
-    println(Cons.from(Number(7), Number(6)))
   }
 }
