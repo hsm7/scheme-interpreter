@@ -12,11 +12,29 @@ object Interpreter {
     val program: String = "(begin (define circle (lambda (r) (* pi (* r r)))) (define double (lambda (n) (+ n n))) (double (circle 6.5)))"
     val factorial: String = "(begin (define fact (lambda (n) (if (< n 1) 1 (* n (fact (- n 1)))))) (fact 10))"
     val fibonacci: String = "(begin (define fib (lambda (n) (if (< n 2) 1 (+ (fib (- n 2)) (fib (- n 1)))))) (fib 10))"
-    println("=> " + program)
-    println(program.eval)
-    println("=> " + fibonacci)
-    println(fibonacci.eval)
-    println("=> " + factorial)
-    println(factorial.eval)
+    val count: String = "(begin (define first car) (define rest cdr) (define count (lambda (item L) (if (empty? L) 0 (+ (if (equal? item (first L)) 1 0) (count item (rest L)))))))"
+    val more: String = "(count (quote the) (quote (the more the merrier the bigger the better)))"
+    val twice: String = "(define twice (lambda (x) (* 2 x)))"
+    val repeat: String = "(twice 5)"
+    val hof: String = "(define repeat (lambda (f) (lambda (x) (f (f x)))))"
+//    println("=> " + program)
+//    println(program.eval)
+//    println("=> " + fibonacci)
+//    println(fibonacci.eval)
+//    println("=> " + factorial)
+//    println(factorial.eval)
+    twice.eval
+    count.eval
+    hof.eval
+//    println("(+ 1 1)".eval.printAST)
+    println("((repeat twice) 10)".eval.printAST)
+//    println(Predef.quote(Cons.from(Symbol("the"))))
+//    println(Predef.quote(Cons.from(Cons.from(Symbol("the"), Symbol("mere"), Symbol("the"), Symbol("merer")))))
+//    Utils.define(Cons.from(Symbol("var"), Number(77)))
+//    println(Environment.global.get(Symbol("var")))
+//    Utils.set(Cons.from(Symbol("var"), Number(99)))
+//    println(Environment.global.get(Symbol("var")))
+//    println(Predef.equal(Cons.from(Number(7), Number(8))))
+//    println(Predef.empty(Cons.from(Empty)))
   }
 }

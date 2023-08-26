@@ -10,7 +10,7 @@ class Environment(private val stack: mutable.Stack[mutable.Map[Symbol, Expressio
   def size: Int = stack.size
   def push(map: mutable.Map[Symbol, Expression]): Unit = stack.push(map)
   def pop: mutable.Map[Symbol, Expression] = stack.pop
-
+  def update(s: Symbol, expr: Expression): Unit = stack.find(_.contains(s)).get.put(s, expr)
 }
 
 object Environment {
@@ -24,8 +24,10 @@ object Environment {
       Symbol("-") -> Lambda(params, Predef.subtract),
       Symbol("*") -> Lambda(params, Predef.multiply),
       Symbol("/") -> Lambda(params, Predef.divide),
+      Symbol("equal?") -> Lambda(params, Predef.equal),
       Symbol("car") -> Lambda(param, Predef.car),
       Symbol("cdr") -> Lambda(param, Predef.cdr),
+      Symbol("empty?") -> Lambda(param, Predef.empty),
       Symbol("cons") -> Lambda(params, Predef.cons),
       Symbol("pi") -> Number(3.14)
     )))

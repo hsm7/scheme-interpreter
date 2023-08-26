@@ -67,6 +67,7 @@ case class Cons(car: Expression, cdr: Expression) extends Expression {
   override def printAST: String = "List(" + car.printAST + ", " + cdr.printAST + ")"
   override def evaluate(implicit env: Environment): Expression = car match {
     case Symbol(s) if s == "begin" => Cons.car(cdr.evaluate.simplify)
+    case Symbol(s) if s == "quote" => Cons.car(cdr)
     case _ => Cons(car.evaluate, cdr.evaluate)
   }
   override def simplify: Expression = car match {
@@ -76,7 +77,9 @@ case class Cons(car: Expression, cdr: Expression) extends Expression {
 
   override def preprocess: Expression = car match {
     case Symbol(s) if s == "begin"  => Cons(car, cdr.preprocess)
+    case Symbol(s) if s == "quote"  => this
     case Symbol(s) if s == "define" => Utils.define(cdr)
+    case Symbol(s) if s == "set!"   => Utils.set(cdr)
     case Symbol(s) if s == "lambda" => Utils.lambda(cdr)
     case Symbol(s) if s == "if"     => Utils._if(cdr.preprocess)
     case Symbol(s)                  => Utils.symbol(Symbol(s), cdr)
@@ -119,11 +122,14 @@ object Lambda {
 case class Procedure(op: Symbol, args: Expression) extends Expression {
   override def print: String = op + " " + args.print
   override def toString: String = "(" + print + ")"
-  override def printAST: String = "Function(" + op.printAST + ", " + args.printAST + ")"
+  override def printAST: String = "Procedure(" + op.printAST + ", " + args.printAST + ")"
   override def evaluate(implicit env: Environment): Expression = op.evaluate match {
     case Lambda(params, f) =>
+      println("params: " + params)
+      println("args: " + args.printAST)
+      println("args eval: " + args.evaluate.printAST)
       env.push(Environment.from(params, args.evaluate))
-      val exp = f(params.evaluate)
+      val exp = f(params.preprocess.evaluate)
       env.pop
       exp
   }

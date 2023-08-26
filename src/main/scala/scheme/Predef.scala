@@ -3,6 +3,17 @@ package scheme
 /** Predefined Scheme procedures */
 object Predef {
 
+  def empty: Expression => Expression = {
+    case Cons(car, _) => car match {
+      case Empty => Bool(true)
+      case _ => Bool(false)
+    }
+  }
+
+  def equal: Expression => Expression = {
+    case Cons(car, cdr) => Bool(car == Cons.car(cdr))
+  }
+
   /* Retrieve car element from a Scheme list */
   def car: Expression => Expression = {
     case Cons(car, _) => Cons.car(car)

@@ -26,7 +26,16 @@ object Utils {
   def define(exp: Expression)(implicit env: Environment): Expression = exp match {
     case Cons(car, cdr) => car match {
       case Symbol(s) =>
-        env.put(Symbol(s), Cons.car(cdr).preprocess)
+        env.put(Symbol(s), Cons.car(cdr).preprocess.evaluate)
+        Empty()
+    }
+  }
+
+  /** Scheme set! expression */
+  def set(exp: Expression)(implicit env: Environment): Expression = exp match {
+    case Cons(car, cdr) => car match {
+      case Symbol(s) =>
+        env.update(Symbol(s), Cons.car(cdr).preprocess)
         Empty()
     }
   }
