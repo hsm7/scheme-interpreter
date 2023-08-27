@@ -17,24 +17,16 @@ object Interpreter {
     val twice: String = "(define twice (lambda (x) (* 2 x)))"
     val repeat: String = "(twice 5)"
     val hof: String = "(define repeat (lambda (f) (lambda (x) (f (f x)))))"
-//    println("=> " + program)
-//    println(program.eval)
-//    println("=> " + fibonacci)
-//    println(fibonacci.eval)
-//    println("=> " + factorial)
-//    println(factorial.eval)
+    println("=> " + program)
+    println(program.eval)
+    println("=> " + fibonacci)
+    println(fibonacci.eval)
+    println("=> " + factorial)
+    println(factorial.eval)
     twice.eval
     count.eval
     hof.eval
-//    println("(+ 1 1)".eval.printAST)
-    println("((repeat twice) 10)".eval.printAST)
-//    println(Predef.quote(Cons.from(Symbol("the"))))
-//    println(Predef.quote(Cons.from(Cons.from(Symbol("the"), Symbol("mere"), Symbol("the"), Symbol("merer")))))
-//    Utils.define(Cons.from(Symbol("var"), Number(77)))
-//    println(Environment.global.get(Symbol("var")))
-//    Utils.set(Cons.from(Symbol("var"), Number(99)))
-//    println(Environment.global.get(Symbol("var")))
-//    println(Predef.equal(Cons.from(Number(7), Number(8))))
-//    println(Predef.empty(Cons.from(Empty)))
+    println("=> " + more)
+    println(more.eval)
   }
 }

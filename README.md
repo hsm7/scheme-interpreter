@@ -29,9 +29,9 @@ sealed trait Expression {
 - [x] Conditional expressions
 - [x] Procedure call expressions
 - [x] Lambda expressions
-- [ ] Quotation expressions
-- [ ] Assignment expressions
-- [x] Local environments and lexical scopes
+- [x] Quotation expressions
+- [x] Assignment expressions
+- [ ] Local environments and lexical scopes
 - [ ] Interpreter REPL
 - [ ] Script files
 - [ ] SBT run configurations (REPL and script files)

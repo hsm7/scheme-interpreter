@@ -18,7 +18,7 @@ object Expression {
    * @param expression scheme expression to evaluate
    * @return evaluated Scheme expression for input Scheme `expression`
    */
-  def evaluate(expression: Expression)(implicit env: Environment): Expression = expression.preprocess.evaluate.simplify
+  def evaluate(expression: Expression)(implicit env: Environment): Expression = expression.evaluate.simplify
 
 }
 
@@ -36,8 +36,6 @@ sealed trait Expression {
 
   /* Evaluate this Scheme expression. */
   def evaluate(implicit env: Environment): Expression = this
-  /* Parse Scheme procedure expressions from list expression. */
-  def preprocess: Expression = this
   /* Simplify this Scheme expression. Removes Empty expressions after evaluating
    * define expressions */
   def simplify: Expression = this
@@ -66,24 +64,19 @@ case class Cons(car: Expression, cdr: Expression) extends Expression {
   override def toString: String = "(" + print + ")"
   override def printAST: String = "List(" + car.printAST + ", " + cdr.printAST + ")"
   override def evaluate(implicit env: Environment): Expression = car match {
-    case Symbol(s) if s == "begin" => Cons.car(cdr.evaluate.simplify)
-    case Symbol(s) if s == "quote" => Cons.car(cdr)
+    case Symbol(s) if s == "begin"  => Cons.car(cdr.evaluate.simplify)
+    case Symbol(s) if s == "quote"  => Cons.car(cdr)
+    case Symbol(s) if s == "define" => Utils.define(cdr).evaluate
+    case Symbol(s) if s == "set!"   => Utils.set(cdr).evaluate
+    case Symbol(s) if s == "lambda" => Utils.lambda(cdr).evaluate
+    case Symbol(s) if s == "if"     => Utils._if(cdr).evaluate
+    case Symbol(s)                  => Utils.symbol(Symbol(s), cdr)
     case _ => Cons(car.evaluate, cdr.evaluate)
   }
+
   override def simplify: Expression = car match {
     case Empty => cdr.simplify
     case _ => Cons(car, cdr.simplify)
-  }
-
-  override def preprocess: Expression = car match {
-    case Symbol(s) if s == "begin"  => Cons(car, cdr.preprocess)
-    case Symbol(s) if s == "quote"  => this
-    case Symbol(s) if s == "define" => Utils.define(cdr)
-    case Symbol(s) if s == "set!"   => Utils.set(cdr)
-    case Symbol(s) if s == "lambda" => Utils.lambda(cdr)
-    case Symbol(s) if s == "if"     => Utils._if(cdr.preprocess)
-    case Symbol(s)                  => Utils.symbol(Symbol(s), cdr)
-    case _                          => Cons(car.preprocess, cdr.preprocess)
   }
 }
 object Cons {
@@ -119,24 +112,21 @@ object Lambda {
 }
 
 /** Represents Scheme procedure call expressions. */
-case class Procedure(op: Symbol, args: Expression) extends Expression {
+case class Procedure(op: Expression, args: Expression) extends Expression {
   override def print: String = op + " " + args.print
   override def toString: String = "(" + print + ")"
   override def printAST: String = "Procedure(" + op.printAST + ", " + args.printAST + ")"
   override def evaluate(implicit env: Environment): Expression = op.evaluate match {
     case Lambda(params, f) =>
-      println("params: " + params)
-      println("args: " + args.printAST)
-      println("args eval: " + args.evaluate.printAST)
       env.push(Environment.from(params, args.evaluate))
-      val exp = f(params.preprocess.evaluate)
+      val exp = f(params.evaluate)
       env.pop
       exp
   }
 }
 
 object Procedure {
-  def apply(op: Symbol, args: Expression): Procedure = new Procedure(op, args)
+  def apply(op: Expression, args: Expression): Procedure = new Procedure(op, args)
 }
 
 /**

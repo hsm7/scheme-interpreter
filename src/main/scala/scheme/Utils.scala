@@ -5,13 +5,13 @@ object Utils {
 
   /** Construct Scheme lambda expressions */
   def lambda: Expression => Expression = {
-    case Cons(car, cdr) => Lambda(car, _ => Cons.car(cdr).preprocess.evaluate)
+    case Cons(car, cdr) => Lambda(car, _ => Cons.car(cdr).evaluate)
   }
 
   /** Construct Scheme procedure expressions */
-  def symbol(symbol: Symbol, expr: Expression)(implicit env: Environment): Expression = env.get(symbol) match {
-    case Lambda(_, _) => Procedure(symbol, expr.preprocess)
-    case _ => Cons(symbol, expr.preprocess)
+  def symbol(symbol: Symbol, expr: Expression)(implicit env: Environment): Expression = symbol.evaluate match {
+    case Lambda(_, _) => Procedure(symbol, expr).evaluate
+    case _ => Cons(symbol.evaluate, expr.evaluate)
   }
 
   /** Evaluate Scheme if expressions */
@@ -26,7 +26,7 @@ object Utils {
   def define(exp: Expression)(implicit env: Environment): Expression = exp match {
     case Cons(car, cdr) => car match {
       case Symbol(s) =>
-        env.put(Symbol(s), Cons.car(cdr).preprocess.evaluate)
+        env.put(Symbol(s), Cons.car(cdr).evaluate)
         Empty()
     }
   }
@@ -35,7 +35,7 @@ object Utils {
   def set(exp: Expression)(implicit env: Environment): Expression = exp match {
     case Cons(car, cdr) => car match {
       case Symbol(s) =>
-        env.update(Symbol(s), Cons.car(cdr).preprocess)
+        env.update(Symbol(s), Cons.car(cdr))
         Empty()
     }
   }

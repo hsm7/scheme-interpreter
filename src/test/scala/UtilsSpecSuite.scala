@@ -1,5 +1,5 @@
 import org.scalatest.funspec.AnyFunSpec
-import scheme.{Bool, Cons, Empty, Expression, Number, Procedure, Symbol, Utils}
+import scheme.{Bool, Cons, Empty, Expression, Lambda, Number, Procedure, Symbol, Utils}
 import scheme.Environment.global
 
 class UtilsSpecSuite extends AnyFunSpec {
@@ -20,11 +20,11 @@ class UtilsSpecSuite extends AnyFunSpec {
       assert(global.get(s).toString == "(7 8)")
     }
     it("should map symbol to function expression in global environment") {
-      val s: Symbol = Symbol("+")
-      val e: Expression = Cons(Procedure(s, Cons(Symbol("x"), Cons(Symbol("y"), Empty))), Empty)
+      val s: Symbol = Symbol("fun")
+      val e: Expression = Cons.from(Lambda(Cons.from(Symbol("x"), Symbol("y")), _ => Empty))
       val expr: Expression = Cons(s, e)
       assert(Utils.define(expr) == Empty())
-      assert(global.get(s).toString == "(+ x y)")
+      assert(global.get(s).toString == "(lambda (x y))")
     }
   }
 

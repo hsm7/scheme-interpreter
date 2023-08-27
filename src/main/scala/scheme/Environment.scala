@@ -5,7 +5,7 @@ import collection.mutable
 
 class Environment(private val stack: mutable.Stack[mutable.Map[Symbol, Expression]]) {
 
-  def get(s: Symbol): Expression = stack.find(_.contains(s)).get(s)
+  def get(s: Symbol): Expression = stack.find(_.contains(s)).getOrElse(throw new NoSuchElementException(s.symbol))(s)
   def put(s: Symbol, expr: Expression): Unit = stack.top.put(s, expr)
   def size: Int = stack.size
   def push(map: mutable.Map[Symbol, Expression]): Unit = stack.push(map)
