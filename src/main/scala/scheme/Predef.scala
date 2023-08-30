@@ -3,73 +3,65 @@ package scheme
 /** Predefined Scheme procedures */
 object Predef {
 
-  def empty: Expression => Expression = {
-    case Cons(car, _) => car match {
-      case Empty => Bool(true)
-      case _ => Bool(false)
-    }
+  def empty: Expression => Bool = {
+    case Cons(Empty, _) => Bool(true)
+    case Cons(_, _) => Bool(false)
+    case expr => throw new EvaluateError(expr)
   }
 
-  def equal: Expression => Expression = {
-    case Cons(car, cdr) => Bool(car == Cons.car(cdr))
+  def equal: Expression => Bool = {
+    case Cons(car, cdr) => Bool(car == cdr.car)
+    case expr => throw new EvaluateError(expr)
   }
 
   /* Retrieve car element from a Scheme list */
   def car: Expression => Expression = {
-    case Cons(car, _) => Cons.car(car)
-    case exp => throw new EvaluateError(exp + " is not a list")
+    case Cons(Cons(car, _), _) => car
+    case Cons(Empty, _) => Empty
+    case expr => throw new EvaluateError(expr)
   }
 
   /* Retrieve cdr elements from a Scheme list */
-  def cdr: Expression => Expression = {
-    case Cons(car, _) => Cons.cdr(car)
-    case exp => throw new EvaluateError(exp + " is not a list")
+  def cdr: Expression => SList = {
+    case Cons(Cons(_, cdr), _) => cdr
+    case expr => throw new EvaluateError(expr)
   }
 
   /* Add new element to a Scheme list */
-  def cons: Expression => Expression = {
-    case Cons(car, cdr) => Cons(car, Cons.car(cdr))
-    case exp => throw new EvaluateError(exp + " is not a list")
+  def cons: Expression => SList = {
+    case Cons(car, Cons(Cons(_car, _cdr), _)) => car :: _car :: _cdr
+    case Cons(car, Empty) => car :: Empty
+    case expr => throw new EvaluateError(expr)
   }
 
   /* Compare Scheme number expression */
-  def lt: Expression => Expression = {
-    case Cons(car, cdr) => car match {
-      case Number(a) => Number(a) < Cons.car(cdr)
-      case _ => throw new EvaluateError(car + " is not a number")
-    }
+  def lt: Expression => Bool = {
+    case Cons(Number(n), Cons(Number(m), _)) => Bool(n < m)
+    case expr => throw new EvaluateError(expr)
   }
 
   /* Addition of Scheme number expression */
-  def add: Expression => Expression = {
-    case Cons(car, cdr) => car match {
-      case Number(a) => Number(a) + Cons.car(cdr)
-      case _ => throw new EvaluateError(car + " is not a number")
-    }
+  def add: Expression => Number = {
+    case Cons(Number(n), Cons(Number(m), _)) => Number(n + m)
+    case expr => throw new EvaluateError(expr)
   }
 
   /* Subtraction of Scheme number expression. */
-  def subtract: Expression => Expression = {
-    case Cons(car, cdr) => car match {
-      case Number(a) => Number(a) - Cons.car(cdr)
-      case _ => throw new EvaluateError(car + " is not a number")
-    }
+  def subtract: Expression => Number = {
+    case Cons(Number(n), Cons(Number(m), _)) => Number(n - m)
+    case expr => throw new EvaluateError(expr)
   }
 
   /* Multiplication of Scheme number expression. */
-  def multiply: Expression => Expression = {
-    case Cons(car, cdr) => car match {
-      case Number(a) => Number(a) * Cons.car(cdr)
-      case _ => throw new EvaluateError(car + " is not a number")
-    }
+  def multiply: Expression => Number = {
+    case Cons(Number(n), Cons(Number(m), _)) => Number(n * m)
+    case expr => throw new EvaluateError(expr)
   }
 
   /* Division of Scheme integer and number expression. */
-  def divide: Expression => Expression = {
-    case Cons(car, cdr) => car match {
-      case Number(a) => Number(a) / Cons.car(cdr)
-      case _ => throw new EvaluateError(car + " is not a number")
-    }
+  def divide: Expression => Number = {
+    case Cons(Number(n), Cons(Number(m), _)) => Number(n / m)
+    case expr => throw new EvaluateError(expr)
   }
 
 }

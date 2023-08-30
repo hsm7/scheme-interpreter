@@ -4,8 +4,12 @@ import Environment.global
 
 object Interpreter {
 
-  implicit class EvaluateString(val value: String) extends AnyVal {
-    def eval (implicit env: Environment): Expression = Expression.evaluate(Expression.parse(value))(env)
+  implicit class ParseString(val str: String) extends AnyVal {
+    def parse: Expression = Parser.parse(str)
+  }
+
+  implicit class EvaluateExpression(val expr: Expression) extends AnyVal {
+    def eval (implicit env: Environment): Expression = Evaluator[Expression].evaluate(expr)(env)
   }
 
   def main(args: Array[String]): Unit = {
@@ -18,15 +22,15 @@ object Interpreter {
     val repeat: String = "(twice 5)"
     val hof: String = "(define repeat (lambda (f) (lambda (x) (f (f x)))))"
     println("=> " + program)
-    println(program.eval)
+    println(program.parse.eval)
     println("=> " + fibonacci)
-    println(fibonacci.eval)
+    println(fibonacci.parse.eval)
     println("=> " + factorial)
-    println(factorial.eval)
-    twice.eval
-    count.eval
-    hof.eval
+    println(factorial.parse.eval)
+    twice.parse.eval
+    count.parse.eval
+    hof.parse.eval
     println("=> " + more)
-    println(more.eval)
+    println(more.parse.eval)
   }
 }

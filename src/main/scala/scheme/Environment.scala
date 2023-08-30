@@ -16,8 +16,8 @@ class Environment(private val stack: mutable.Stack[mutable.Map[Symbol, Expressio
 object Environment {
 
   implicit lazy val global: Environment = {
-    val param: Cons = Cons.from(Symbol("x"))
-    val params: Cons = Cons.from(Symbol("x"), Symbol("y"))
+    val param: SList = Symbol("x") :: Empty
+    val params: SList = Symbol("x") :: Symbol("y") :: Empty
     new Environment(mutable.Stack(mutable.Map[Symbol, Expression](
       Symbol("<") -> Lambda(params, Predef.lt),
       Symbol("+") -> Lambda(params, Predef.add),
@@ -33,15 +33,14 @@ object Environment {
     )))
   }
 
-  def from(params: Expression, args: Expression): mutable.Map[Symbol, Expression] = {
+  def from(params: SList, args: SList): mutable.Map[Symbol, Expression] = {
     @tailrec
-    def _from(params: Expression, args: Expression, map: mutable.Map[Symbol, Expression]):
+    def _from(params: SList, args: SList, map: mutable.Map[Symbol, Expression]):
     mutable.Map[Symbol, Expression] = params match {
       case Empty => map
-      case Cons(car, cdr) => car match {
-        case Symbol(s) => _from(cdr, Cons.cdr(args), map += (Symbol(s) -> Cons.car(args)))
-      }
+      case Cons(s: Symbol, cdr) => _from(cdr, args.cdr, map += s -> args.car)
     }
+
     _from(params, args, mutable.Map.empty[Symbol, Expression])
   }
 }
