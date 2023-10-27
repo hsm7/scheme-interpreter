@@ -5,12 +5,24 @@ import collection.mutable
 
 class Environment(private val stack: mutable.Stack[mutable.Map[Symbol, Expression]]) {
 
+  /* Retrieve a symbol from the closest scope */
   def get(s: Symbol): Expression = stack.find(_.contains(s)).getOrElse(throw new NoSuchElementException(s.symbol))(s)
+
+  /* Bind a symbol to an expression in the current scope */
   def put(s: Symbol, expr: Expression): Unit = stack.top.put(s, expr)
+
+  /* Number of scopes from the current scope to the global scope */
   def size: Int = stack.size
+
+  /* Create new scope */
   def push(map: mutable.Map[Symbol, Expression]): Unit = stack.push(map)
+
+  /* Remove current scope */
   def pop: mutable.Map[Symbol, Expression] = stack.pop
+
+  /* Update bindings in the closest scope */
   def update(s: Symbol, expr: Expression): Unit = stack.find(_.contains(s)).get.put(s, expr)
+
   override def toString: String = stack.map(map => map.toString).reduce(_ + ", " + _)
 }
 
