@@ -13,7 +13,6 @@ class Environment(private val stack: mutable.Stack[mutable.Map[Symbol, Expressio
   def update(s: Symbol, expr: Expression): Unit = stack.find(_.contains(s)).get.put(s, expr)
   override def toString: String = stack.map(map => map.toString).reduce(_ + ", " + _)
 }
-    println(Evaluator[Expression].evaluate(Parser.parse("(define head car)")))
 
 object Environment {
 
