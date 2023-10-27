@@ -38,8 +38,7 @@ object Evaluator {
       case _         => simplify(evaluator.evaluate(list.car) :: evaluator.evaluate(list.cdr).asInstanceOf[SList])
     }
 
-    /* Simplify a Scheme expression. Removes Empty expressions after evaluating
-   * define expressions */
+    /* Simplify an expression. Remove Empty expressions after evaluating define expressions */
     private def simplify(expr: SList): SList = expr match {
       case Cons(Empty, cdr) => simplify(cdr)
       case Cons(car, cdr) => car :: simplify(cdr)
@@ -70,7 +69,6 @@ object Evaluator {
         case Bool(s) if s => evaluator.evaluate(cdr.car)
         case Bool(s) if !s => evaluator.evaluate(cdr.cdr.car)
       }
-      case expr => throw new EvaluateError(expr)
     }
 
     /** Map a Scheme symbol to an expression in the given environment */
@@ -93,7 +91,8 @@ object Evaluator {
     override def evaluate(proc: Procedure)(implicit env: Environment): Expression =
       evaluator.evaluate(proc.op) match {
       case Lambda(params, f) =>
-        env.push(Environment.from(params, evaluator.evaluate(proc.args).asInstanceOf[SList]))
+        val args = evaluator.evaluate(proc.args).asInstanceOf[SList]
+        env.push(Environment.from(params, args))
         val exp = f(evaluator.evaluate(params))
         env.pop
         exp
@@ -116,12 +115,12 @@ object Evaluator {
     val factorial: String = "(begin (define fact (lambda (n) (if (< n 1) 1 (* n (fact (- n 1)))))) (fact 10))"
     val count: String = "(begin (define first car) (define rest cdr) (define count (lambda (item L) (if (empty? L) 0 (+ (if (equal? item (first L)) 1 0) (count item (rest L)))))))"
     val more: String = "(count (quote the) (quote (the more the merrier the bigger the better)))"
+
     println(Evaluator[Value].evaluate(Number(7)))
     println(Evaluator[Expression].evaluate(Str("String")))
     println(Evaluator[Value].evaluate(Bool(true)))
     println(Evaluator[Expression].evaluate(Parser.parse(factorial)))
-    println(Evaluator[Expression].evaluate(Parser.parse(count)))
+    Evaluator[Expression].evaluate(Parser.parse(count))
     println(Evaluator[Expression].evaluate(Parser.parse(more)))
-    println(Evaluator[Expression].evaluate(Parser.parse("(define head car)")))
   }
 }

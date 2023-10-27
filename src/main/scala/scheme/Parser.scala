@@ -25,7 +25,7 @@ object Parser extends RegexParsers {
    * @return expression AST for input Scheme expressions
    */
   def list(expressions: List[Expression]): SList = expressions match {
-    case Nil     => Empty
+    case Nil => Empty
     case car :: cdr => car :: list(cdr)
   }
 
@@ -45,13 +45,13 @@ object Parser extends RegexParsers {
   def value: Parser[Value] = bool | num | str
 
   // Scheme identifiers allows alphanumeric chars, some symbols, and can't start with a digit
-  def symbol : Parser[Symbol] = "[a-zA-Z=*+-/<>!\\?][a-zA-Z0-9=*+-/<>!\\?]*".r ^^ Symbol.apply
+  def symbol: Parser[Symbol] = "[a-zA-Z=*+-/<>!\\?][a-zA-Z0-9=*+-/<>!\\?]*".r ^^ Symbol.apply
 
   // Scheme list is a series of expressions wrapped in ()
-  def list : Parser[SList] = "(" ~> rep(expr) <~ ")" ^^ list
+  def list: Parser[SList] = "(" ~> rep(expr) <~ ")" ^^ list
 
   // A Scheme expression can be any of the previous patterns
-  def expr : Parser[Expression] = value | symbol | list
+  def expr: Parser[Expression] = value | symbol | list
 
   def main(args: Array[String]): Unit = {
     val program = "(car (7))"

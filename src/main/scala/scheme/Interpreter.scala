@@ -21,15 +21,14 @@ object Interpreter {
     val twice: String = "(define twice (lambda (x) (* 2 x)))"
     val repeat: String = "(twice 5)"
     val hof: String = "(define repeat (lambda (f) (lambda (x) (f (f x)))))"
+    val repeatTwice = "((repeat twice) 10)"
+    count.parse.eval
     println("=> " + program)
     println(program.parse.eval)
     println("=> " + fibonacci)
     println(fibonacci.parse.eval)
     println("=> " + factorial)
     println(factorial.parse.eval)
-    twice.parse.eval
-    count.parse.eval
-    hof.parse.eval
     println("=> " + more)
     println(more.parse.eval)
   }

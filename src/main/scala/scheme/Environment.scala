@@ -11,13 +11,16 @@ class Environment(private val stack: mutable.Stack[mutable.Map[Symbol, Expressio
   def push(map: mutable.Map[Symbol, Expression]): Unit = stack.push(map)
   def pop: mutable.Map[Symbol, Expression] = stack.pop
   def update(s: Symbol, expr: Expression): Unit = stack.find(_.contains(s)).get.put(s, expr)
+  override def toString: String = stack.map(map => map.toString).reduce(_ + ", " + _)
 }
+    println(Evaluator[Expression].evaluate(Parser.parse("(define head car)")))
 
 object Environment {
 
   implicit lazy val global: Environment = {
     val param: SList = Symbol("x") :: Empty
     val params: SList = Symbol("x") :: Symbol("y") :: Empty
+    
     new Environment(mutable.Stack(mutable.Map[Symbol, Expression](
       Symbol("<") -> Lambda(params, Predef.lt),
       Symbol("+") -> Lambda(params, Predef.add),

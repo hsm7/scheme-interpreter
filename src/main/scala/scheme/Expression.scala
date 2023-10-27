@@ -1,17 +1,15 @@
 package scheme
 
-import scala.annotation.tailrec
-
 
 /* Expression ADT represents Scheme expressions abstract syntax tree */
 sealed trait Expression {
   // Datatype definition:
   //    Expression  = SList | Value | Symbol | Procedure
-  //    SList       = Empty | Cons(car: Expression, cdr: Expression)
+  //    SList       = Empty | Cons(car: Expression, cdr: SList)
   //    Value       = Number(value: BigDecimal) | Bool(value: Boolean) | Str(value: String)
-  //                | Lambda(params: Expression, f: Expression => Expression)
+  //                | Lambda(params: SList, f: Expression => Expression)
   //    Symbol      = Symbol(s: String)
-  //    Procedure   = Procedure(op: Symbol, args: Expression)
+  //    Procedure   = Procedure(op: Symbol, args: SList)
 
   /* String representation of abstract syntax tree for this Scheme expression. */
   def printAST: String
@@ -20,9 +18,6 @@ sealed trait Expression {
   /* Partial String representation of this Scheme expression. Used to construct `toString` */
   private[scheme] def print: String
 }
-
-/** Represents Scheme runtime errors */
-class EvaluateError(expr: Expression, msg: String = "Invalid expression: ") extends RuntimeException(msg + expr)
 
 /** Represents a Scheme list expression. */
 abstract sealed class SList extends Expression {
@@ -35,7 +30,7 @@ object SList {
   }
 }
 
-/** Represents the empty expression. */
+/** Represents Scheme empty list expression. */
 case object Empty extends SList {
   override def car: Expression = this
   override def cdr: SList = this
@@ -44,7 +39,7 @@ case object Empty extends SList {
 
 }
 
-/** Represents a Scheme list expression. */
+/** Represents Scheme non-empty list expressions. */
 case class Cons(car: Expression, cdr: SList) extends SList {
   override def toString: String = "(" + print + ")"
   override def printAST: String = "List(" + car.printAST + ", " + cdr.printAST + ")"

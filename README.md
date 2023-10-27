@@ -8,15 +8,14 @@ to the following Expression abstract syntax tree.
 
 ```scala
 sealed trait Expression {
-  
+
   // Datatype definition:
-  //    Expression  = Empty | Value | Symbol | Procedure | Lambda | Cons
-  //    Empty       = Empty
+  //    Expression  = SList | Value | Symbol | Procedure
+  //    SList       = Empty | Cons(car: Expression, cdr: SList)
   //    Value       = Number(value: BigDecimal) | Bool(value: Boolean) | Str(value: String)
+  //                | Lambda(params: SList, f: Expression => Expression)
   //    Symbol      = Symbol(s: String)
-  //    Procedure   = Procedure(op: Symbol, args: Expression)
-  //    Lambda      = Lambda(params: Expression, f: Expression => Expression)
-  //    Cons        = Cons(car: Expression, cdr: Expression)
+  //    Procedure   = Procedure(op: Symbol, args: SList)
   
 }
 ```
