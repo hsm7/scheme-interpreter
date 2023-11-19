@@ -31,5 +31,9 @@ object Interpreter {
     println(factorial.parse.eval)
     println("=> " + more)
     println(more.parse.eval)
+    twice.parse.eval
+    hof.parse.eval
+    println(repeat.parse.eval)
+//    println(repeatTwice.parse.eval.eval)
   }
 }

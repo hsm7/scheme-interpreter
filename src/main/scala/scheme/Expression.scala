@@ -71,7 +71,7 @@ case class Symbol(symbol: String) extends Expression {
 sealed abstract class Value extends Expression
 
 /** Represents Scheme lambda expressions and built in procedures. */
-case class Lambda(params: SList, f: Expression => Expression) extends Value {
+case class Lambda(params: SList, f: Environment => Expression => Expression) extends Value {
   override def printAST: String = "Lambda(" + params.printAST + ", " + f + ")"
   override def print: String = "lambda " + params
   override def toString: String = "(" + print + ")"
