@@ -10,12 +10,11 @@ to the following Expression abstract syntax tree.
 sealed trait Expression {
 
   // Datatype definition:
-  //    Expression  = SList | Value | Symbol | Procedure
+  //    Expression  = SList | Value | Symbol
   //    SList       = Empty | Cons(car: Expression, cdr: SList)
   //    Value       = Number(value: BigDecimal) | Bool(value: Boolean) | Str(value: String)
-  //                | Lambda(params: SList, f: Expression => Expression)
+  //                | Procedure(op: Symbol, args: SList, params: SList, f: Environment => Expression => Expression)
   //    Symbol      = Symbol(s: String)
-  //    Procedure   = Procedure(op: Symbol, args: SList)
   
 }
 ```
@@ -31,7 +30,3 @@ sealed trait Expression {
 - [x] Quotation expressions
 - [x] Assignment expressions
 - [ ] Local environments and lexical scopes
-- [ ] Interpreter REPL
-- [ ] Script files
-- [ ] SBT run configurations (REPL and script files)
-- [ ] Documentations and examples
